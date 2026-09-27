@@ -4,16 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SLAM — Műsorrend</title>
-  <link rel="shortcut icon" href="img/ooslam-removebg-preview.png">
+  <link rel="shortcut icon" href="/img/ooslam-removebg-preview.png">
   <link rel="stylesheet" href="theme.css">
   <link href="_app/immutable/assets/0.b9ef364e.css" rel="stylesheet">
   <link rel="stylesheet" href="_app/immutable/assets/slamcss-all.css">
+  <link rel="stylesheet" href="slam-shared.css">
+  <script src="slam-shared.js"></script>
   <script src="_app/immutable/entry/slam-all.js"></script>
+  <script src="custom-header.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
     /* Inter Black — ugyanaz a betűtípus, mint a kezdőlap PROGRAM kártyáin */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;800;900&display=swap');
 
     :root {
       --green:       #27dc54;
@@ -356,373 +359,48 @@
       .show-row { transition: none !important; }
     }
 
-    /* =====================================================================
-       "Most élőben" sáv — Club Vibes Radio referenciakép alapján
-       (zöld→kék gradiens banner, fotó a bal alsó sarokban, play gomb,
-       "Most szól" doboz, "Lejátszott dalok" gomb)
-       ===================================================================== */
-
-    .cvr-card {
-      position: relative;
-      isolation: isolate;
-      display: flex;
-      align-items: center;
-      min-height: clamp(22rem, 32vw, 32rem);
-      border-radius: 2rem;
-      overflow: hidden;
-      --cvr-photo-w: clamp(22rem, 48%, 44rem);
-      --cvr-gutter: clamp(1.5rem, 3vw, 3rem);
-      /* lágy, "szósz"-formájú zöld folt olvad bele a kék alapba —
-         nem éles, függőleges vágás a két szín között */
-      background:
-        radial-gradient(62% 150% at 16% 55%, #22e78e 0%, #1de883 34%, rgba(29,232,131,0) 76%),
-        linear-gradient(120deg, #0a3fc4 22%, #072a86 75%, #051d63 100%);
-      box-shadow: 0 30px 60px -24px rgba(2,64,200,.55), 0 0 0 1px rgba(255,255,255,.06);
-    }
-
-    /* piros "ÉLŐBEN" jelvény, bal felső sarok, közvetlenül a gradiensen */
-    .cvr-badge {
-      position: absolute;
-      top: clamp(1.4rem, 3vw, 2.2rem); left: clamp(1.4rem, 3vw, 2.2rem);
-      z-index: 5;
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .55rem 1.2rem .5rem .9rem;
-      font: 800 1.1rem/1 var(--font-primary, sans-serif);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: #fff;
-      background: #ff2d2d;
-      border-radius: 100px;
-      box-shadow: 0 8px 20px -8px rgba(255,45,45,.7);
-    }
-    .cvr-badge .slam-live-badge-dot { display: none; }
-    .slam-live-hero.is-offline .cvr-badge { background: rgba(20,20,25,.75); }
-
-    /* DJ / műsorvezető fotója (vagy műsor-grafikája) — NINCS külön
-       háttérdoboz vagy szegély: a kép közvetlenül a gradiens-alapon "áll",
-       alulra igazítva, mint egy valódi kivágott portré. Ha a forrásfájl
-       átlátszó hátterű, teljesen egybeolvad a színátmenettel; ha nem
-       (pl. egy teli hátterű plakát-grafika), a lekerekített sarok +
-       finom árnyék akkor is rendezett, "lebegő" hatást ad, nem tömör
-       dobozt. */
-    .cvr-photo {
-      position: absolute;
-      z-index: 1;
-      left: clamp(2.5rem, 7vw, 6rem);
-      bottom: 0;
-      top: 0;
-      width: var(--cvr-photo-w);
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      pointer-events: none;
-      /* a fotó jobb szélén finoman elolvad a gradiensbe,
-         nincs éles doboz-perem */
-      -webkit-mask-image: none;
-      mask-image: none;
-      overflow: visible;
-    }
-    .cvr-photo img {
-      width: auto;
-      height: 100%;
-      max-width: none;
-      object-fit: contain;
-      display: block;
-      border-radius: 0;
-      filter: none;
-    }
-    .cvr-photo .slam-live-monogram {
-      font: 800 clamp(5rem, 9vw, 9rem)/1 var(--font-hackney, sans-serif);
-      color: rgba(255,255,255,.3);
-    }
-
-    /* jobb oldali tartalom — a fotó sávja + egy VALÓDI hézag ("gutter")
-       után indul, hogy sose csússzon össze a fotóval */
-    .cvr-content {
-      position: relative;
-      z-index: 2;
-      flex: 1 1 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: clamp(2rem, 3.6vw, 3.2rem);
-      padding: clamp(2.2rem, 4vw, 3.4rem) clamp(2rem, 4vw, 3.6rem);
-      margin-left: calc(var(--cvr-photo-w) + var(--cvr-gutter));
-    }
-
-    .cvr-top {
-      display: flex;
-      align-items: center;
-      gap: clamp(1.4rem, 2.4vw, 2rem);
-      flex-wrap: wrap;
-    }
-
-    .cvr-play {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: clamp(5.2rem, 6vw, 6.2rem); height: clamp(5.2rem, 6vw, 6.2rem);
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      background: #27dc54;
-      color: #06210f;
-      box-shadow: 0 16px 34px -10px rgba(39,220,84,.7);
-      transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease;
-    }
-    .cvr-play svg { width: 2.2rem; height: 2.2rem; margin-left: .2rem; }
-    .cvr-play:hover { transform: scale(1.06) translateY(-2px); }
-    .cvr-play:active { transform: scale(.93); }
-    .cvr-play.playing { background: #ff2d2d; color: #fff; }
-
-    .cvr-titles {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: .8rem;
-      min-width: 0;
-    }
-
-    .cvr-show-pill {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-width: 194px !important;
-      height: 34px !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-      overflow: visible;
-      white-space: nowrap;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-      font-weight: 900 !important;
-      font-size: 16px !important;
-      line-height: 1 !important;
-      text-transform: uppercase;
-      letter-spacing: 0;
-      color: #fff;
-      background: #060f1d;
-      padding: 0 .9rem !important;
-      border-radius: 100px;
-    }
-
-    .cvr-time-pill {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-width: 338px !important;
-      height: 33px !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-      overflow: visible;
-      white-space: nowrap;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-      font-weight: 900 !important;
-      font-size: 16px !important;
-      line-height: 1 !important;
-      text-transform: uppercase;
-      letter-spacing: -.01em;
-      color: #000000;
-      background: rgba(255,255,255,.92);
-      padding: 0 .8rem !important;
-      border-radius: 100px;
-    }
-
-    /* "Most szól" doboz */
-    .cvr-nowplaying {
-      display: inline-flex;
-      align-items: center;
-      gap: 1.3rem;
-      align-self: flex-start;
-      width: clamp(28rem, 40vw, 44rem);
-      max-width: 100%;
-      padding: 1.3rem 2.4rem 1.3rem 1.5rem;
-      border: 1.5px solid rgba(255,255,255,.6);
-      border-radius: 100px;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-    }
-    .cvr-nowplaying-label {
-      flex-shrink: 0;
-      min-width: 3.6rem;
-      font: 800 .95rem/1.2 var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      letter-spacing: .02em;
-      color: #fff;
-      text-align: center;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-    }
-    .cvr-nowplaying-art {
-      flex-shrink: 0;
-      width: 4.6rem; height: 4.6rem;
-      border-radius: .6rem;
-      background: #060f1d;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .cvr-nowplaying-art img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .cvr-nowplaying-info {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-    }
-    .cvr-nowplaying-title {
-      font: 800 1.2rem/1.25 var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      color: #fff;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-    }
-    .cvr-nowplaying-artist {
-      font: 600 1rem/1.25 var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      color: rgba(216,228,255,.8);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      font-family: 'Inter', var(--font-primary, sans-serif) !important;
-    }
-
-    /* "Lejátszott dalok" gomb, jobbra lent — teli kék pirula, sötétebb
-       kék "kapszula" gombbal a végén, a referenciakép szerint */
-    .cvr-history {
-      align-self: flex-end;
-      display: inline-flex;
-      align-items: center;
-      gap: 0;
-      text-decoration: none;
-      background: #1568f5;
-      border-radius: 100px;
-      box-shadow: 0 12px 26px -10px rgba(2,64,200,.7);
-      transition: background .2s ease, transform .2s ease;
-    }
-    .cvr-history-text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 2rem 0 1.8rem;
-      height: 2.6rem;
-      font: 800 1.05rem/1 var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      letter-spacing: .01em;
-      color: #fff;
-      white-space: nowrap;
-      text-align: center;
-      box-sizing: border-box;
-    }
-    .cvr-history-arrow {
-      flex-shrink: 0;
-      width: 2.6rem; height: 2.6rem;
-      margin: .35rem;
-      border-radius: 50%;
-      background: #0a3fc4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .cvr-history-arrow svg { width: 1rem; height: 1rem; color: #fff; transition: transform .2s; }
-    .cvr-history:hover { background: #1f74ff; transform: translateY(-1px); }
-    .cvr-history:hover .cvr-history-arrow svg { transform: translateX(2px); }
-
-    /* JS-kompatibilitási elemek (DJ-sor, "Következik" blokk) — vizuálisan
-       elrejtve, de a meglévő updateLiveHero() logika zavartalanul tovább
-       tudja írni a tartalmukat */
-    .cvr-hidden { display: none !important; }
-
-    @media (max-width: 900px) {
-      .cvr-card { flex-direction: column; align-items: stretch; min-height: auto; padding-top: 13rem; }
-      .cvr-photo {
-        position: absolute; left: 50%; top: 1rem; bottom: auto;
-        transform: translateX(-50%); width: 11rem; height: 11rem;
-        -webkit-mask-image: none; mask-image: none;
-      }
-      .cvr-photo img { height: 100%; object-fit: cover; border-radius: 1rem; }
-      .cvr-content { margin-left: 0; padding: 1.8rem; align-items: center; text-align: center; }
-      .cvr-top { justify-content: center; }
-      .cvr-titles { align-items: center; }
-      .cvr-nowplaying { align-self: center; }
-      .cvr-history { align-self: center; }
-    }
-
-    @media (max-width: 480px) {
-      .cvr-show-pill { font-size: 1.2rem; padding: .7rem 1.3rem; }
-      .cvr-time-pill { font-size: .95rem; padding: .65rem 1.3rem; }
-      .cvr-play { width: 4.6rem; height: 4.6rem; }
-    }
+    /* A "Most élőben" sáv mostantól a slamcss-all.css-ben már meglévő,
+       pixelre pontos .slam-live-hero / .slam-live-card rendszert használja
+       (ugyanazt, amit a referenciakép alapján mértek be), NEM saját
+       közelítő CSS-t — így a fotó/gyűrűk/időpirula/cím pozíciója és mérete
+       pontosan a referenciát követi. A play gombot, a "most szól" dobozt
+       és a "lejátszott dalok" gombot egyszerűen kihagytuk a HTML-ből
+       (ezek amúgy is display:none-ok a megosztott CSS-ben, ha mégis ott
+       maradnának), semmi mást nem kellett hozzáadni vagy felülírni.
+    */
   </style>
 </head>
 <body>
 
 <script src="slam-depth-background.js"></script>
-<script src="slam-modern-nav.js"></script>
 
 <div class="schedule-page">
 
+  <!-- ÚJ KINÉZET: a slamcss-all.css-ben már meglévő, pixelre pontos
+    .slam-live-hero / .slam-live-card rendszer (ugyanaz, amit a beküldött
+    "ASOT BY WEEKENDER" referenciakép alapján mértek be) — csak a
+    DJ-fotó, a gyűrű-dísz, egy időpirula és a cím. Play gomb, "most szól"
+    doboz és "lejátszott dalok" gomb NINCS a markupban. -->
   <div class="slam-live-hero" id="live-hero">
-    <div class="cvr-card">
+    <div class="slam-live-card">
 
-      <!-- piros "ÉLŐBEN" jelvény -->
-      <span class="cvr-badge" id="live-hero-badge">
-        Élőben
-      </span>
+      <!-- koncentrikus gyűrű-dísz a bal-felső sarokban -->
+      <div class="slam-live-rings" aria-hidden="true"></div>
 
-      <!-- DJ / műsorvezető fotója, a sáv aljához igazítva -->
-      <div class="cvr-photo" id="live-hero-art">
-        <div class="slam-live-monogram" id="live-hero-monogram">S</div>
-      </div>
+      <!-- ÉLŐBEN jelvény: a referencián nem szerepel — a megosztott CSS
+        amúgy is display:none-ra állítja, csak a JS-kompatibilitás miatt
+        marad a DOM-ban -->
+      <span class="slam-live-badge" id="live-hero-badge" aria-hidden="true"></span>
 
-      <!-- jobb oldali tartalom -->
-      <div class="cvr-content">
+      <!-- DJ-fotó / monogram, a kártya bal szélén -->
+      <div class="slam-live-art-wrap" id="live-hero-art"></div>
 
-        <div class="cvr-top">
-          <button class="cvr-play" id="live-hero-play" type="button" aria-label="Lejátszás / szünet">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
-          </button>
-
-          <div class="cvr-titles">
-            <span class="cvr-show-pill" id="live-hero-show" aria-live="polite">SLAM Non-Stop</span>
-            <span class="cvr-time-pill" id="live-hero-duration"></span>
-          </div>
+      <!-- jobb oszlop: időpirula + cím -->
+      <div class="slam-live-right">
+        <div class="slam-live-eyebrow">
+          <span class="slam-live-time-pill" id="live-hero-duration"></span>
         </div>
-
-        <div class="cvr-nowplaying">
-          <span class="cvr-nowplaying-label">Most<br>szól</span>
-          <span class="cvr-nowplaying-art">
-            <img src="img/01/logos2.png" alt="" id="live-hero-track-art">
-          </span>
-          <span class="cvr-nowplaying-info">
-            <span class="cvr-nowplaying-title" id="live-hero-track-title">Zene címe</span>
-            <span class="cvr-nowplaying-artist" id="live-hero-track-artist">Zene előadója</span>
-          </span>
-        </div>
-
-        <a href="playlist.html" class="cvr-history" id="live-hero-more">
-          <span class="cvr-history-text">Lejátszott dalok</span>
-          <span class="cvr-history-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </span>
-        </a>
-
-        <!-- a meglévő updateLiveHero()-nak szüksége van ezekre az elemekre,
-             de az új dizájnban nem jelennek meg külön -->
-        <div class="cvr-hidden" aria-hidden="true">
-          <div id="live-hero-dj-row">
-            <div id="live-hero-dj-avatar"></div>
-            <span id="live-hero-dj"></span>
-          </div>
-          <div id="live-hero-next">
-            <span id="live-hero-next-name"></span>
-            <span id="live-hero-next-meta"></span>
-          </div>
-        </div>
-
+        <h2 class="slam-live-show-title" id="live-hero-show" aria-live="polite">SLAM Non-Stop</h2>
       </div>
 
     </div>
@@ -744,8 +422,9 @@
 
 </div>
 
+<div id="slam-footer-mount"></div>
+
 <script src="slam-reorder.js"></script>
-<script src="slam-footer-reimagined.js"></script>
 
 <script src="schedule-data.js"></script>
 <script>
@@ -761,12 +440,21 @@ function slugify(str){
 }
 function nowMins(){var n=new Date();return n.getHours()*60+n.getMinutes();}
 
+/* ── dátum szerinti (naptári) műsorrend-lekérdezés ──
+   A schedule-data.js-ben lévő SLAM_SCHEDULE.getShowsFor(dateObj) adja vissza
+   egy adott naptári napra a műsorokat: ha az admin felületen arra a napra
+   egyedi műsorrendet vittek fel, azt; egyébként a heti sablont
+   (SHOWS[a nap hétköznapja]). A napválasztó (buildDayNav) offset szerint
+   (0 = ma, 1 = holnap, …) dolgozik, ebből mindig friss Date-et számolunk. */
+function todayDate(){var d=new Date();d.setHours(0,0,0,0);return d;}
+function addDays(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;}
+
 var jsDay=new Date().getDay();
 var todayIdx=jsDay===0?6:jsDay-1;
-var selectedDay=todayIdx;
+var selectedOffset=0; /* 0 = ma, a napválasztóban kiválasztott nap (0..6) */
 
-function getStatus(s,dayIdx){
-  if(dayIdx!==todayIdx)return'normal';
+function getStatus(s,isToday){
+  if(!isToday)return'normal';
   var now=nowMins(),start=toMins(s.time),end=toMins(s.end);
   if(end<start)end+=1440;
   if(now>=start&&now<end)return'live';
@@ -791,13 +479,13 @@ function buildDayNav(){
     var date=new Date(today);
     date.setDate(today.getDate()+offset);
     var btn=document.createElement('button');
-    btn.className='day-btn'+(i===selectedDay?' active':'');
+    btn.className='day-btn'+(offset===selectedOffset?' active':'');
     var mo=date.toLocaleDateString('hu-HU',{day:'numeric',month:'short'});
     var label = offset===0 ? 'MA' : (offset===1 ? 'HOLNAP' : (DAYS_SHORT[i].toUpperCase()+' '+date.getDate()+' '+HU_MONTHS_ABBR[date.getMonth()]));
     btn.innerHTML='<span class="d-name">'+label+'</span><span class="d-date">'+mo+'</span>';
     btn.setAttribute('aria-label',DAYS_FULL[i]+', '+mo);
-    if(i===selectedDay) btn.setAttribute('aria-current','true');
-    btn.onclick=function(){selectedDay=i;buildDayNav();buildList();};
+    if(offset===selectedOffset) btn.setAttribute('aria-current','true');
+    btn.onclick=function(){selectedOffset=offset;buildDayNav();buildList();};
     el.appendChild(btn);
   });
 }
@@ -806,11 +494,13 @@ function buildDayNav(){
 function buildList(){
   var list=document.getElementById('show-list');
   list.innerHTML='';
-  var shows=SHOWS[selectedDay]||[];
+  var selectedDate=addDays(todayDate(),selectedOffset);
+  var isToday=selectedOffset===0;
+  var shows=SLAM_SCHEDULE.getShowsFor(selectedDate)||[];
   var autoSelected=false;
 
   shows.forEach(function(s,i){
-    var status=getStatus(s,selectedDay);
+    var status=getStatus(s,isToday);
     var row=document.createElement('a');
 
     var hasRealDj = !!(s.dj && s.dj !== '.');
@@ -868,7 +558,7 @@ function buildList(){
 
 /* ---- élő-sáv hero frissítése (mindig a MAI nap aktuális adása) ---- */
 function fmtDuration(startStr,endStr){
-  return 'Hallgasd '+startStr+' és '+endStr+' között';
+  return startStr+' - '+endStr;
 }
 
 /* a következő, még nem aktuális műsor megkeresése — ha mára nincs
@@ -876,20 +566,19 @@ function fmtDuration(startStr,endStr){
 function findNextShow(){
   var now=new Date();
   var nowM=now.getHours()*60+now.getMinutes();
-  var list=SHOWS[todayIdx]||[];
+  var list=SLAM_SCHEDULE.getShowsFor(todayDate())||[];
   for(var i=0;i<list.length;i++){
     if(toMins(list[i].time)>nowM) return list[i];
   }
-  var nextIdx=(todayIdx+1)%7;
-  var nextList=SHOWS[nextIdx]||[];
+  var nextList=SLAM_SCHEDULE.getShowsFor(addDays(todayDate(),1))||[];
   return nextList[0]||null;
 }
 
 function updateLiveHero(){
-  var todays=SHOWS[todayIdx]||[];
+  var todays=SLAM_SCHEDULE.getShowsFor(todayDate())||[];
   var current=null;
   for(var i=0;i<todays.length;i++){
-    if(getStatus(todays[i],todayIdx)==='live'){ current=todays[i]; break; }
+    if(getStatus(todays[i],true)==='live'){ current=todays[i]; break; }
   }
 
   var heroEl      = document.getElementById('live-hero');
@@ -923,14 +612,25 @@ function updateLiveHero(){
     durationEl.textContent=fmtDuration(current.time,current.end);
     durationEl.style.display='';
 
-    /* bal panel: DJ_PHOTOS > show.photo > monogram */
-    var djPhoto = (current.dj && DJ_PHOTOS[current.dj]) || current.photo || '';
+    /* bal panel: csak VALÓDI, megnevezett DJ esetén jelenik meg fotó
+       (ugyanaz a szabály, mint a show-list soroknál) — a sima kitöltő
+       műsorok (pl. WEEKEND, a "." DJ-placeholderrel) semmilyen képet/
+       grafikát nem kapnak, nehogy a show.photo mezőben esetleg tárolt
+       promóciós grafika (a bele van égetve a saját feliratozott
+       "WEEKEND" képe) megjelenjen a hero alján */
+    var hasRealDjLive = !!(current.dj && current.dj !== '.');
+    var djPhoto = hasRealDjLive ? (DJ_PHOTOS[current.dj] || current.photo || '') : '';
     if(djPhoto){
       artEl.innerHTML='<img src="'+djPhoto+'" alt="'+(current.dj||current.name)+'">';
-    } else {
+      artEl.style.display='';
+    } else if(hasRealDjLive){
       var init=current.initial||current.name.charAt(0);
       artEl.innerHTML='<div class="slam-live-monogram">'+init+'</div>';
+      artEl.style.display='';
       if(avatarEl) avatarEl.textContent=init;
+    } else {
+      artEl.innerHTML='';
+      artEl.style.display='none';
     }
 
     /* DJ sor */
@@ -952,9 +652,24 @@ function updateLiveHero(){
     showEl.textContent='SLAM Non-Stop';
     durationEl.textContent='';
     durationEl.style.display='none';
-    artEl.innerHTML='<div class="slam-live-monogram">S</div>';
+    artEl.innerHTML='';
+    artEl.style.display='none';
     if(djRowEl) djRowEl.style.display='none';
   }
+
+  /* ---- a most szóló műsor adatainak továbbküldése a megosztott
+    mini-lejátszónak (slam-shared.js hallgatja ezt az eseményt) ---- */
+  document.dispatchEvent(new CustomEvent('slam:now-playing', {
+    detail: {
+      current: !!current,
+      name: current ? current.name : 'SLAM Non-Stop',
+      dj: (current && current.dj && current.dj !== '.') ? current.dj : 'SLAM Radio',
+      photo: (current && ((current.dj && DJ_PHOTOS[current.dj]) || current.photo)) || null,
+      time: current ? current.time : null,
+      end: current ? current.end : null,
+      initial: (current && current.initial) || (current ? current.name.charAt(0) : 'S')
+    }
+  }));
 }
 
 /* ---- élő-sáv hero play-gomb a meglévő stream-lejátszóhoz kötve ---- */
@@ -995,10 +710,15 @@ function updateLiveHero(){
   }
 })();
 
-buildDayNav();
-buildList();
-updateLiveHero();
-setInterval(function(){buildList();updateLiveHero();},60000);
+function refreshAll(){buildDayNav();buildList();updateLiveHero();}
+
+/* az első kirajzolás megvárja a műsorrend-felülírások (JSONBin) betöltését,
+   hogy ne a heti sablon villanjon fel egy pillanatra egy olyan napon,
+   amire admin felületen egyedi műsorrendet vittek fel */
+SLAM_SCHEDULE.ready.then(refreshAll);
+
+setInterval(function(){buildList();updateLiveHero();},60000); /* percenkénti újrarajzolás (élő sáv, "most szól") */
+setInterval(function(){SLAM_SCHEDULE.refresh().then(refreshAll);},300000); /* 5 percenként újraolvassuk a felülírásokat is, hogy egy admin-szerkesztés a nyitva hagyott oldalon is megjelenjen */
 </script>
 </body>
 </html>

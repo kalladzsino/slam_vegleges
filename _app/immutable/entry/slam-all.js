@@ -1254,91 +1254,111 @@ window.SLAM_NOWPLAYING_URL = null;
       updateBackToTopVisibility();
     }
 
-    var footer = document.querySelector('.footer.svelte-tk8rio');
-    if (!footer) return;
-    if (footer.querySelector('.slam-footer-cta')) return; // idempotens védelem
+    /* ---- footer-kiegészítés (CTA/hírlevél + extra oszlop + jogi linkek) ----
+       FONTOS: a footer maga csak KÉSŐBB, JS-ből kerül be a DOM-ba
+       (lásd a fájl végén a #slam-footer-mount-ot lecserélő kód) — ha ez
+       a rész (ami DOMContentLoaded-re fut) HAMARABB lefut, mint ahogy a
+       footer ténylegesen a DOM-ba kerül, a régi "if (!footer) return;"
+       egyszeri próbálkozás után simán feladta, és a CTA-sáv sosem került
+       be. Itt is ugyanaz az újrapróbálkozós mintát használjuk, mint a
+       footer-mountolásnál: legfeljebb 30 × 200ms-enként (6 mp) újra
+       megnézzük, amíg a footer meg nem jelenik. */
+    function augmentFooter() {
+      var footer = document.querySelector('.footer.svelte-tk8rio');
+      if (!footer) return false;
+      if (footer.querySelector('.slam-footer-cta')) return true; // idempotens védelem
 
-    var footerMain = footer.querySelector('.footer-main.svelte-tk8rio');
+      var footerMain = footer.querySelector('.footer-main.svelte-tk8rio');
 
-    /* ---- 1) CTA / hírlevél panel a footer tetején ---- */
-    var cta = document.createElement('div');
-    cta.className = 'slam-footer-cta';
-    cta.innerHTML =
-      '<div class="slam-footer-cta-text">' +
-        '<h2 class="slam-footer-cta-title">' +
-          '<span class="blue">NE.</span> <span class="green">MARADJ.</span> <span>LE.</span>' +
-        '</h2>' +
-        '<p class="slam-footer-cta-subtitle">' +
-          'Iratkozz fel a SLAM hírlevélre, és elsőként értesülsz az új ' +
-          'műsorokról, élő eseményekről és DJ-felállásokról.' +
-        '</p>' +
-      '</div>' +
-      '<form class="slam-footer-newsletter" novalidate>' +
-        '<label class="slam-footer-newsletter-label" for="slam-footer-email">E-mail cím</label>' +
-        '<div class="slam-footer-newsletter-field">' +
-          '<input id="slam-footer-email" type="email" name="email" placeholder="te@email.hu" autocomplete="email" required>' +
-          '<button type="submit">' +
-            'Feliratkozom' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>' +
-          '</button>' +
+      /* ---- 1) CTA / hírlevél panel a footer tetején ---- */
+      var cta = document.createElement('div');
+      cta.className = 'slam-footer-cta';
+      cta.innerHTML =
+        '<div class="slam-footer-cta-text">' +
+          '<h2 class="slam-footer-cta-title">' +
+            '<span class="blue">NE.</span> <span class="green">MARADJ.</span> <span>LE.</span>' +
+          '</h2>' +
+          '<p class="slam-footer-cta-subtitle">' +
+            'Iratkozz fel a SLAM hírlevélre, és elsőként értesülsz az új ' +
+            'műsorokról, élő eseményekről és DJ-felállásokról.' +
+          '</p>' +
         '</div>' +
-        '<p class="slam-footer-newsletter-note" aria-live="polite"></p>' +
-      '</form>';
+        '<form class="slam-footer-newsletter" novalidate>' +
+          '<label class="slam-footer-newsletter-label" for="slam-footer-email">E-mail cím</label>' +
+          '<div class="slam-footer-newsletter-field">' +
+            '<input id="slam-footer-email" type="email" name="email" placeholder="te@email.hu" autocomplete="email" required>' +
+            '<button type="submit">' +
+              'Feliratkozom' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>' +
+            '</button>' +
+          '</div>' +
+          '<p class="slam-footer-newsletter-note" aria-live="polite"></p>' +
+        '</form>';
 
-    if (footerMain) {
-      footer.insertBefore(cta, footerMain);
-    } else {
-      footer.insertBefore(cta, footer.firstChild);
-    }
-
-    /* ---- a feliratkozás-form kezelése ----
-       MEGJEGYZÉS: itt nincs valódi hírlevél-backend, csak vizuális
-       visszajelzést adunk. Cseréld le a saját hírlevél-szolgáltatód
-       (pl. Mailchimp, Brevo, MailerLite) végpontjára / API-hívására. */
-    var form = cta.querySelector('.slam-footer-newsletter');
-    var note = form.querySelector('.slam-footer-newsletter-note');
-    var emailInput = form.querySelector('input[type="email"]');
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (!emailInput.value || !emailInput.checkValidity()) {
-        note.textContent = 'Adj meg egy érvényes e-mail címet.';
-        note.classList.remove('success');
-        note.classList.add('error');
-        return;
+      if (footerMain) {
+        footer.insertBefore(cta, footerMain);
+      } else {
+        footer.insertBefore(cta, footer.firstChild);
       }
-      note.textContent = 'Köszönjük! Hamarosan jelentkezünk.';
-      note.classList.remove('error');
-      note.classList.add('success');
-      form.reset();
-    });
 
-    /* ---- 2) harmadik sitemap-oszlop, a meglévő link-table
-       osztályokkal (így automatikusan öröklik a meglévő stílust) ---- */
-    var footerRight = footer.querySelector('.footer-right.svelte-tk8rio');
-    if (footerRight) {
-      var extraColumn = document.createElement('div');
-      extraColumn.className = 'links-table svelte-tk8rio';
-      extraColumn.innerHTML =
-        '<div class="link-header svelte-tk8rio">Egyéb</div>' +
-        '<a class="link-item svelte-tk8rio" href="#">GYIK</a>' +
-        '<a class="link-item svelte-tk8rio" href="#">Médiaajánlat</a>' +
-        '<a class="link-item svelte-tk8rio" href="#">Karrier</a>' +
-        '<a class="link-item svelte-tk8rio" href="#">Sajtószoba</a>';
-      footerRight.appendChild(extraColumn);
+      /* ---- a feliratkozás-form kezelése ----
+         MEGJEGYZÉS: itt nincs valódi hírlevél-backend, csak vizuális
+         visszajelzést adunk. Cseréld le a saját hírlevél-szolgáltatód
+         (pl. Mailchimp, Brevo, MailerLite) végpontjára / API-hívására. */
+      var form = cta.querySelector('.slam-footer-newsletter');
+      var note = form.querySelector('.slam-footer-newsletter-note');
+      var emailInput = form.querySelector('input[type="email"]');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!emailInput.value || !emailInput.checkValidity()) {
+          note.textContent = 'Adj meg egy érvényes e-mail címet.';
+          note.classList.remove('success');
+          note.classList.add('error');
+          return;
+        }
+        note.textContent = 'Köszönjük! Hamarosan jelentkezünk.';
+        note.classList.remove('error');
+        note.classList.add('success');
+        form.reset();
+      });
+
+      /* ---- 2) harmadik sitemap-oszlop, a meglévő link-table
+         osztályokkal (így automatikusan öröklik a meglévő stílust) ---- */
+      var footerRight = footer.querySelector('.footer-right.svelte-tk8rio');
+      if (footerRight) {
+        var extraColumn = document.createElement('div');
+        extraColumn.className = 'links-table svelte-tk8rio';
+        extraColumn.innerHTML =
+          '<div class="link-header svelte-tk8rio">Egyéb</div>' +
+          '<a class="link-item svelte-tk8rio" href="#">GYIK</a>' +
+          '<a class="link-item svelte-tk8rio" href="#">Médiaajánlat</a>' +
+          '<a class="link-item svelte-tk8rio" href="#">Karrier</a>' +
+          '<a class="link-item svelte-tk8rio" href="#">Sajtószoba</a>';
+        footerRight.appendChild(extraColumn);
+      }
+
+      /* ---- 3) jogi linksor a footer alján, a build-ben már kész
+         (de eddig üres) .footer-legal / .link-legal-item osztályokkal ---- */
+      var footerBottom = footer.querySelector('.footer-bottom.svelte-tk8rio');
+      if (footerBottom && !footerBottom.querySelector('.footer-legal')) {
+        var legal = document.createElement('div');
+        legal.className = 'footer-legal svelte-tk8rio';
+        legal.innerHTML =
+          '<a class="link-legal-item svelte-tk8rio" href="#">Adatvédelem</a>' +
+          '<a class="link-legal-item svelte-tk8rio" href="#">ÁSZF</a>' +
+          '<a class="link-legal-item svelte-tk8rio" href="#">Cookie-beállítások</a>';
+        footerBottom.appendChild(legal);
+      }
+      return true;
     }
 
-    /* ---- 3) jogi linksor a footer alján, a build-ben már kész
-       (de eddig üres) .footer-legal / .link-legal-item osztályokkal ---- */
-    var footerBottom = footer.querySelector('.footer-bottom.svelte-tk8rio');
-    if (footerBottom && !footerBottom.querySelector('.footer-legal')) {
-      var legal = document.createElement('div');
-      legal.className = 'footer-legal svelte-tk8rio';
-      legal.innerHTML =
-        '<a class="link-legal-item svelte-tk8rio" href="#">Adatvédelem</a>' +
-        '<a class="link-legal-item svelte-tk8rio" href="#">ÁSZF</a>' +
-        '<a class="link-legal-item svelte-tk8rio" href="#">Cookie-beállítások</a>';
-      footerBottom.appendChild(legal);
+    if (!augmentFooter()) {
+      var footerTries = 0;
+      var footerIv = setInterval(function () {
+        footerTries += 1;
+        if (augmentFooter() || footerTries > 30) clearInterval(footerIv);
+      }, 200);
     }
   });
 })();
@@ -2410,5 +2430,537 @@ window.SLAM_NOWPLAYING_URL = null;
     document.addEventListener('DOMContentLoaded', function () { addSleepButton(0); });
   } else {
     addSleepButton(0);
+  }
+})();
+
+
+/* KERESÉS gomb a Fiókom elé + teljes képernyős kereső (Radio 538 "Zoeken" minta).
+      A menüt a slam-all.js építi, ezért megvárjuk. Az overlay az első megnyitáskor
+      épül fel, és ekkor olvassa be az adatot:
+        - GYORS ELÉRÉS: a schedule-data.js DJ_PHOTOS + SHOWS változóiból (DJ → műsora)
+        - TRENDING: az oldalon lévő .slam-trending-grid cikk-kártyákból */
+    (function () {
+      var ARROW = '<svg viewBox="0 0 30 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M28.5 13H2M12.5 2.5L2 13l10.5 10.5"/></svg>';
+      var LENS  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg>';
+
+      var btn, overlay, input, body, secDj, gridDj, secArt, gridArt, emptyEl, DJS, ARTS;
+
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      /* ékezet- és kisbetű-független összehasonlításhoz */
+      function norm(s) {
+        return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
+      /* műsor-slug a musor-reszlet.html?nev=... linkhez */
+      function slug(s) {
+        return norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      }
+
+      function collectDjs() {
+        var out = [];
+        var photos = (typeof DJ_PHOTOS !== 'undefined') ? DJ_PHOTOS : {};
+        var shows  = (typeof SHOWS !== 'undefined') ? SHOWS : {};
+        Object.keys(photos).forEach(function (name) {
+          var photo = photos[name];
+          if (!name || name === '.' || name === 'SLAM' || !photo) return; /* nem DJ / nincs fotó */
+          var names = [], href = '';
+          Object.keys(shows).forEach(function (d) {
+            (shows[d] || []).forEach(function (s) {
+              if (s.dj !== name) return;
+              if (names.indexOf(s.name) < 0) names.push(s.name);
+              if (!href) href = (s.url && s.url !== '.') ? s.url : 'musor-reszlet.html?nev=' + encodeURIComponent(slug(s.name));
+            });
+          });
+          out.push({ name: name, photo: photo, shows: names, href: href || 'musorrend.html' });
+        });
+        return out;
+      }
+
+      function collectArticles() {
+        var out = [];
+        var list = document.querySelectorAll('.slam-trending-grid a.teaser');
+        for (var i = 0; i < list.length; i++) {
+          var a = list[i];
+          var img = a.querySelector('img');
+          var t = a.querySelector('.body .title, h3');
+          var c = a.querySelector('.category-phone, .badge');
+          if (!t) continue;
+          out.push({
+            href: a.getAttribute('href') || '#',
+            img: img ? img.getAttribute('src') : '',
+            cat: c ? c.textContent.trim() : '',
+            title: t.textContent.replace(/\s+/g, ' ').trim()
+          });
+        }
+        return out;
+      }
+
+      function render(q) {
+        q = norm(q).trim();
+        var djs = DJS.filter(function (d) { return !q || norm(d.name + ' ' + d.shows.join(' ')).indexOf(q) > -1; });
+        var arts = ARTS.filter(function (a) { return !q || norm(a.title + ' ' + a.cat).indexOf(q) > -1; });
+
+        gridDj.innerHTML = djs.map(function (d) {
+          return '<a class="slam-so-dj" href="' + esc(d.href) + '"><img src="' + esc(d.photo) + '" alt="" loading="lazy"><span>' + esc(d.name) + '</span></a>';
+        }).join('');
+        gridArt.innerHTML = arts.map(function (a) {
+          return '<a class="slam-so-art" href="' + esc(a.href) + '"><span class="slam-so-art-img">' +
+            (a.img ? '<img src="' + esc(a.img) + '" alt="" loading="lazy">' : '') + '</span>' +
+            (a.cat ? '<span class="slam-so-art-cat">' + esc(a.cat) + '</span>' : '') +
+            '<span class="slam-so-art-title">' + esc(a.title) + '</span></a>';
+        }).join('');
+
+        secDj.hidden = !djs.length;
+        secArt.hidden = !arts.length;
+        emptyEl.hidden = !!(djs.length || arts.length);
+      }
+
+      function ensureOverlay() {
+        if (overlay) return;
+        overlay = document.createElement('div');
+        overlay.className = 'slam-so';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Keresés');
+        overlay.innerHTML =
+          '<div class="slam-so-bar"><div class="slam-so-in">' +
+            '<button type="button" class="slam-so-back" aria-label="Vissza">' + ARROW + '</button>' +
+            '<label class="slam-so-field">' + LENS +
+              '<input type="search" placeholder="Keresés" aria-label="Keresés" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">' +
+            '</label>' +
+          '</div></div>' +
+          '<div class="slam-so-body"><div class="slam-so-wrap">' +
+            '<section class="slam-so-sec"><h2 class="slam-so-h">MŰSORVEZETŐINK / DJ-INK</h2><div class="slam-so-grid4"></div></section>' +
+            '<section class="slam-so-sec"><h2 class="slam-so-h">TRENDING</h2><div class="slam-so-grid3"></div></section>' +
+            '<p class="slam-so-empty" hidden>Nincs találat</p>' +
+          '</div></div>';
+        document.body.appendChild(overlay);
+
+        input   = overlay.querySelector('input');
+        body    = overlay.querySelector('.slam-so-body');
+        var secs = overlay.querySelectorAll('.slam-so-sec');
+        secDj = secs[0]; secArt = secs[1];
+        gridDj = secDj.querySelector('.slam-so-grid4');
+        gridArt = secArt.querySelector('.slam-so-grid3');
+        emptyEl = overlay.querySelector('.slam-so-empty');
+
+        DJS = collectDjs();
+        ARTS = collectArticles();
+
+        overlay.querySelector('.slam-so-back').addEventListener('click', function () { toggle(false); });
+        input.addEventListener('input', function () { render(input.value); body.scrollTop = 0; });
+        input.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.blur(); });
+        /* ha egy fotó nem töltődik be, marad a kártya háttere */
+        gridDj.addEventListener('error', function (e) { if (e.target && e.target.tagName === 'IMG') e.target.style.display = 'none'; }, true);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+      }
+
+      function toggle(open) {
+        if (open) {
+          ensureOverlay();
+          input.value = '';
+          render('');
+          body.scrollTop = 0;
+          overlay.classList.add('is-open');
+          document.body.classList.add('slam-so-lock');
+          btn.setAttribute('aria-expanded', 'true');
+          setTimeout(function () { input.focus(); }, 30);
+        } else if (overlay && overlay.classList.contains('is-open')) {
+          overlay.classList.remove('is-open');
+          document.body.classList.remove('slam-so-lock');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.focus();
+        }
+      }
+
+      function build() {
+        var right = document.querySelector('#slam-custom-header .slam-nav-right');
+        if (!right || right.querySelector('.slam-nav-searchbtn')) return !!right;
+        btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'slam-nav-searchbtn';
+        btn.setAttribute('aria-label', 'Keresés'); btn.setAttribute('aria-expanded', 'false');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg><span>Keresés</span>';
+        right.insertBefore(btn, right.firstChild);
+        btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(true); });
+        return true;
+      }
+      function start() {
+        if (build()) return;
+        var mo = new MutationObserver(function () { if (build()) mo.disconnect(); });
+        mo.observe(document.body, { childList: true, subtree: true });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+    })();
+
+    /* FIÓKOM gomb → teljes képernyős bejelentkezés/regisztráció overlay,
+      pontosan a KERESÉS overlay (.slam-so) mintájára építve: ugyanaz a
+      nyitás/zárás animáció, bar + görgethető body szerkezet, ESC-cel és
+      a vissza-nyíllal zárható. A Fiókom gombot a custom-header.js építi
+      be (#slam-custom-header .slam-nav-account), ezért — ugyanúgy, mint
+      a keresés gombnál — MutationObserver-rel várjuk meg, amíg megjelenik. */
+    (function () {
+      var ARROW = '<svg viewBox="0 0 30 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M28.5 13H2M12.5 2.5L2 13l10.5 10.5"/></svg>';
+
+      var EMAIL_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 6.5 9 6.2 9-6.2"/></svg>';
+      var LOCK_ICO  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M7.5 10.5V7.8a4.5 4.5 0 0 1 9 0v2.7"/></svg>';
+      var USER_ICO  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>';
+      var GO_ICO    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>';
+
+      var link, overlay, tabs, tabIndicator, forms, formsWrap, switches;
+
+      function setFormsHeight(animate) {
+        var active = overlay.querySelector('.slam-ao-form.is-active');
+        if (!active) return;
+        var h = active.scrollHeight;
+        if (!animate) formsWrap.style.transition = 'none';
+        formsWrap.style.height = h + 'px';
+        if (!animate) {
+          /* force reflow, majd visszakapcsoljuk az átmenetet a következő váltáshoz */
+          void formsWrap.offsetHeight;
+          formsWrap.style.transition = '';
+        }
+      }
+
+      function activate(name, animateHeight) {
+        tabs.forEach(function (t) { t.classList.toggle('is-active', t.dataset.tab === name); });
+        tabIndicator.style.transform = 'translateX(' + (name === 'register' ? '100%' : '0') + ')';
+        forms.forEach(function (f) {
+          var on = f.dataset.form === name;
+          f.classList.toggle('is-active', on);
+          f.setAttribute('aria-hidden', on ? 'false' : 'true');
+        });
+        switches.forEach(function (s) { s.hidden = s.dataset.switch !== name; });
+        setFormsHeight(animateHeight !== false);
+      }
+
+      function ensureOverlay() {
+        if (overlay) return;
+        overlay = document.createElement('div');
+        overlay.className = 'slam-ao';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Fiókom');
+        overlay.innerHTML =
+          '<div class="slam-ao-bar"><div class="slam-ao-in">' +
+            '<button type="button" class="slam-ao-back" aria-label="Vissza">' + ARROW + '</button>' +
+            '<span class="slam-ao-bar-title">Fiókom</span>' +
+          '</div></div>' +
+          '<div class="slam-ao-body">' +
+            '<div class="slam-ao-card">' +
+              '<h2 class="slam-ao-heading">Üdvözlünk a <span>SLAM</span>-en!</h2>' +
+              '<div class="slam-ao-tabs">' +
+                '<span class="slam-ao-tab-indicator"></span>' +
+                '<button type="button" class="slam-ao-tab is-active" data-tab="login">Bejelentkezés</button>' +
+                '<button type="button" class="slam-ao-tab" data-tab="register">Regisztráció</button>' +
+              '</div>' +
+              '<div class="slam-ao-forms">' +
+                '<form class="slam-ao-form is-active" data-form="login">' +
+                  '<label class="slam-ao-field"><span>E-mail cím</span><span class="slam-ao-input-wrap">' + EMAIL_ICO + '<input type="email" name="email" autocomplete="email" placeholder="nev@example.com" required></span></label>' +
+                  '<label class="slam-ao-field"><span>Jelszó</span><span class="slam-ao-input-wrap">' + LOCK_ICO + '<input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required></span></label>' +
+                  '<div class="slam-ao-row">' +
+                    '<label class="slam-ao-check"><input type="checkbox" name="remember"><span>Emlékezz rám</span></label>' +
+                    '<a href="#" class="slam-ao-link">Elfelejtett jelszó?</a>' +
+                  '</div>' +
+                  '<button type="submit" class="slam-ao-submit"><span>Bejelentkezés</span>' + GO_ICO + '</button>' +
+                '</form>' +
+                '<form class="slam-ao-form" data-form="register" aria-hidden="true">' +
+                  '<label class="slam-ao-field"><span>Teljes név</span><span class="slam-ao-input-wrap">' + USER_ICO + '<input type="text" name="name" autocomplete="name" placeholder="Kovács Anna" required></span></label>' +
+                  '<label class="slam-ao-field"><span>E-mail cím</span><span class="slam-ao-input-wrap">' + EMAIL_ICO + '<input type="email" name="email" autocomplete="email" placeholder="nev@example.com" required></span></label>' +
+                  '<label class="slam-ao-field"><span>Jelszó</span><span class="slam-ao-input-wrap">' + LOCK_ICO + '<input type="password" name="password" autocomplete="new-password" placeholder="••••••••" required></span></label>' +
+                  '<label class="slam-ao-field"><span>Jelszó megerősítése</span><span class="slam-ao-input-wrap">' + LOCK_ICO + '<input type="password" name="password2" autocomplete="new-password" placeholder="••••••••" required></span></label>' +
+                  '<button type="submit" class="slam-ao-submit"><span>Fiók létrehozása</span>' + GO_ICO + '</button>' +
+                '</form>' +
+              '</div>' +
+              '<p class="slam-ao-switch" data-switch="login">Még nincs fiókod?<button type="button" data-goto="register">Regisztrálj</button></p>' +
+              '<p class="slam-ao-switch" data-switch="register" hidden>Már van fiókod?<button type="button" data-goto="login">Jelentkezz be</button></p>' +
+            '</div>' +
+          '</div>';
+        document.body.appendChild(overlay);
+
+        tabs = Array.prototype.slice.call(overlay.querySelectorAll('.slam-ao-tab'));
+        tabIndicator = overlay.querySelector('.slam-ao-tab-indicator');
+        forms = Array.prototype.slice.call(overlay.querySelectorAll('.slam-ao-form'));
+        formsWrap = overlay.querySelector('.slam-ao-forms');
+        switches = Array.prototype.slice.call(overlay.querySelectorAll('.slam-ao-switch'));
+
+        tabs.forEach(function (t) { t.addEventListener('click', function () { activate(t.dataset.tab); }); });
+        overlay.querySelectorAll('[data-goto]').forEach(function (b) {
+          b.addEventListener('click', function () { activate(b.dataset.goto); });
+        });
+        forms.forEach(function (f) { f.addEventListener('submit', function (e) { e.preventDefault(); }); });
+
+        overlay.querySelector('.slam-ao-back').addEventListener('click', function () { toggle(false); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
+        window.addEventListener('resize', function () { if (overlay.classList.contains('is-open')) setFormsHeight(false); });
+
+        activate('login', false);
+      }
+
+      function toggle(open) {
+        if (open) {
+          ensureOverlay();
+          overlay.classList.add('is-open');
+          document.body.classList.add('slam-so-lock');
+          setTimeout(function () {
+            var first = overlay.querySelector('.slam-ao-form:not([hidden]) input');
+            if (first) first.focus();
+          }, 30);
+        } else if (overlay && overlay.classList.contains('is-open')) {
+          overlay.classList.remove('is-open');
+          document.body.classList.remove('slam-so-lock');
+          if (link) link.focus();
+        }
+      }
+
+      /* A gombot esemény-delegálással kapjuk el a document-en, capture
+        fázisban — ez attól függetlenül működik, hogy a Fiókom gombot
+        pontosan melyik szelektor/osztály építi fel, és akkor is, ha a
+        SvelteKit router újra lerendereli az elemet. A capture fázis
+        biztosítja, hogy a mi kezelőnk fusson le előbb, mint a keret
+        saját (nem-capture) navigációs kattintás-figyelője. */
+      document.addEventListener('click', function (e) {
+        if (e.target.closest('.slam-ao')) return; /* a felugró ablakon belüli kattintásokat a saját gombjai kezelik */
+        var el = e.target.closest(
+          '#slam-custom-header .slam-nav-account, .slamp-account-pill, [aria-label="Fiókom"], [aria-label="Fiók"], [aria-label="fiókom"]'
+        );
+        if (!el) {
+          /* utolsó mentsvár: ha a fenti szelektorok egyike sem talál (pl. a
+            custom-header.js más osztálynevet/struktúrát épít), próbáljuk
+            a látható "Fiókom" feliratú gomb/link szövege alapján. */
+          var cand = e.target.closest('a, button');
+          if (cand && cand.textContent.replace(/\s+/g, ' ').trim().toLowerCase() === 'fiókom') el = cand;
+        }
+        if (!el) return;
+        console.log('[SLAM fiókom-overlay] gombra kattintva, overlay nyitása:', el);
+        e.preventDefault();
+        e.stopPropagation();
+        link = el;
+        toggle(true);
+      }, true);
+      console.log('[SLAM fiókom-overlay] script betöltve és figyel a kattintásra');
+    })();
+
+  /* =========================================================
+    SLAM — a mini lejátszó borítójának összekötése a most szóló
+    műsorral.
+
+    Az oldal maga ('updateLiveHero') már kibocsát egy
+    'slam:now-playing' eseményt a mai műsorrend (SHOWS/DJ_PHOTOS)
+    alapján — ebben benne van a most élő műsor fotója is
+    (d.photo), ha van neki. Ezt eddig csak a TELJES képernyős
+    lejátszó használta fel; ez a script ugyanezt köti be az ÚJ
+    (slamp-*) mini-sávba is:
+
+      - ha van fotó a mai műsorhoz (pl. PROTOKOL BY WEEKENDER
+        DJ-fotója) -> az jelenik meg a borító-négyzetben, kitöltve
+      - ha nincs   -> a nagy, a sáv teteje fölé kilógó SLAM-logó
+        (img/01/logos.png, a két pöttyös verzió)
+
+    Az esemény percenként újra lefut, tehát műsorváltáskor a
+    borító is automatikusan frissül/vált.
+    ========================================================= */
+  (function () {
+    var FALLBACK_ART = '/img/01/logos.png';
+    var lastPhoto = null;
+
+    function applyArt(photoUrl) {
+      var artEl = document.querySelector('.slamp-art');
+      if (!artEl) return false;
+
+      var img = artEl.querySelector('img.slamp-art-img');
+      if (!img) {
+        artEl.innerHTML = '';
+        img = document.createElement('img');
+        img.className = 'slamp-art-img';
+        img.alt = '';
+        artEl.appendChild(img);
+      }
+
+      var src = photoUrl || FALLBACK_ART;
+      if (img.getAttribute('src') !== src) img.src = src;
+      artEl.classList.toggle('has-photo', !!photoUrl);
+      artEl.classList.toggle('has-logo', !photoUrl);
+      return true;
+    }
+
+    document.addEventListener('slam:now-playing', function (e) {
+      var d = e.detail || {};
+      lastPhoto = d.photo || null;
+      applyArt(lastPhoto);
+
+      var titleEl = document.querySelector('.slamp-meta-title');
+      var subEl = document.querySelector('.slamp-meta-sub');
+      var statusEl = document.querySelector('.slamp-status-label');
+      if (titleEl) titleEl.textContent = d.name || 'SLAM';
+      if (subEl) subEl.textContent = d.dj || 'Élő adás';
+      if (statusEl) {
+        statusEl.textContent = (d.time && d.end)
+          ? (d.time + ' - ' + d.end)
+          : (d.current ? 'Élő adás' : 'Most szól');
+      }
+    });
+
+    /* a slamp-art elem (és az első 'slam:now-playing' esemény) csak
+      kis késéssel épül fel/fut le -> néhányszor újrapróbáljuk, hogy
+      biztosan legyen kép (valódi fotó VAGY a logó-fallback) akkor is,
+      ha ez a script hamarabb töltődött be, mint a lejátszó DOM-ja */
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries += 1;
+      if (applyArt(lastPhoto) || tries > 30) clearInterval(iv);
+    }, 200);
+  })();
+
+  /* =========================================================
+    SLAM — a hangerő-ikon most már követi a csúszka állását:
+    néma / halk / hangos ikon a slamp-vol-range értéke (és a
+    némítás gomb) alapján, ugyanazon a slamp-vol-icon SVG-n belül.
+    ========================================================= */
+  (function () {
+    var ICONS = {
+      muted: '<path d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
+            '<line x1="22" y1="9" x2="16" y2="15"></line>' +
+            '<line x1="16" y1="9" x2="22" y2="15"></line>',
+      low:   '<path d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
+            '<path d="M16 8a5 5 0 0 1 0 8"></path>',
+      high:  '<path d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
+            '<path d="M16 8a5 5 0 0 1 0 8"></path>' +
+            '<path d="M19.5 5a9 9 0 0 1 0 14"></path>'
+    };
+
+    function wire() {
+      var range = document.querySelector('.slamp-vol-range');
+      var icon = document.querySelector('.slamp-vol-icon');
+      var svg = icon && icon.querySelector('svg');
+      if (!range || !icon || !svg) return false;
+      if (icon.dataset.iconSynced) return true; /* ne kössük be kétszer */
+      icon.dataset.iconSynced = '1';
+
+      function update() {
+        var muted = !!(window.audio && window.audio.muted);
+        var vol = parseFloat(range.value);
+        var key = (muted || vol <= 0) ? 'muted' : (vol <= 0.5 ? 'low' : 'high');
+        if (svg.getAttribute('data-state') !== key) {
+          svg.setAttribute('data-state', key);
+          svg.innerHTML = ICONS[key];
+        }
+      }
+
+      range.addEventListener('input', update);
+      icon.addEventListener('click', function () {
+        /* a meglévő némítás-kapcsoló után frissítjük az ikont */
+        setTimeout(update, 0);
+      });
+      if (window.audio) {
+        window.audio.addEventListener('volumechange', update);
+      }
+      update();
+      return true;
+    }
+
+    if (!wire()) {
+      var t = 0;
+      var iv2 = setInterval(function () {
+        t += 1;
+        if (wire() || t > 40) clearInterval(iv2);
+      }, 200);
+    }
+  })();
+
+
+/* ============================================================
+  SLAM — közös FOOTER injektálása minden oldalon.
+  A footer HTML-je (index.html-ről emelve ki) itt van EGY helyen;
+  minden oldal csak egy <div id="slam-footer-mount"></div> elemet
+  tesz ki magának, ide kerül be ugyanaz a footer.
+  ============================================================ */
+(function () {
+  var FOOTER_HTML = `            <footer class="footer svelte-tk8rio">
+              <div class="footer-main svelte-tk8rio">
+                <div class="footer-left svelte-tk8rio">
+                  <!-- <div style="display: contents; --width:6.5rem;"><img
+                      class="umbraco-image svelte-1k6vkv6" alt="SLAM! Logo RGB Wit"
+                      src="slam/slam-logo.png"
+                      loading="lazy"></div> -->
+                  <div style="display: contents; --width:35rem;"><img
+                      class="umbraco-image svelte-1k6vkv6" alt="SLAM! We. Love. Music." sizes="2000px" src="/img/01/logo.png"
+                      loading="lazy" style=""></div>
+                  <div class="socials svelte-tk8rio">
+                    <div class="socials-title svelte-tk8rio" data-svelte-h="svelte-qyha62">Kövess minket a neten!</div>
+                    <div class="socials-list svelte-tk8rio"> <a class="button rounded   svelte-3awqp0"
+                        data-variant="primary" href="https://www.instagram.com/slamwelovemusic/"
+                        target="_blank" type="button">
+                        <div class="social-icon svelte-tk8rio">
+                          <div style="display: contents; --size:2rem;"><svg
+                              style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
+                              viewBox="0 0 17 16" fill="none">
+                              <path
+                                d="M8.71158 2.53448C10.4917 2.53448 10.7025 2.54125 11.4055 2.57333C12.0555 2.60299 12.4085 2.7116 12.6434 2.80287C12.9546 2.92381 13.1767 3.0683 13.4099 3.30157C13.6432 3.53485 13.7877 3.75695 13.9086 4.06811C13.9999 4.30305 14.1085 4.65605 14.1382 5.30601C14.1703 6.00901 14.177 6.21985 14.177 7.99993C14.177 9.78002 14.1703 9.99085 14.1382 10.6938C14.1085 11.3438 13.9999 11.6968 13.9086 11.9318C13.7877 12.2429 13.6432 12.465 13.4099 12.6983C13.1767 12.9316 12.9546 13.0761 12.6434 13.197C12.4085 13.2883 12.0555 13.3969 11.4055 13.4265C10.7026 13.4586 10.4918 13.4654 8.71158 13.4654C6.93138 13.4654 6.72055 13.4586 6.01768 13.4265C5.36769 13.3969 5.01469 13.2883 4.77978 13.197C4.4686 13.0761 4.24649 12.9316 4.01321 12.6983C3.77994 12.465 3.63545 12.2429 3.51454 11.9318C3.42324 11.6968 3.31463 11.3438 3.28497 10.6939C3.2529 9.99085 3.24612 9.78002 3.24612 7.99993C3.24612 6.21985 3.2529 6.00901 3.28497 5.30604C3.31463 4.65605 3.42324 4.30305 3.51454 4.06811C3.63545 3.75695 3.77994 3.53485 4.01321 3.30157C4.24649 3.0683 4.4686 2.92381 4.77978 2.80287C5.01469 2.7116 5.36769 2.60299 6.01766 2.57333C6.72066 2.54125 6.93149 2.53448 8.71158 2.53448ZM8.71158 1.33325C6.901 1.33325 6.674 1.34093 5.96293 1.37337C5.25331 1.40576 4.76872 1.51844 4.34464 1.68326C3.90625 1.85363 3.53447 2.08158 3.16385 2.4522C2.79323 2.82282 2.56527 3.19461 2.3949 3.633C2.23009 4.05707 2.11741 4.54167 2.08501 5.25129C2.05257 5.96233 2.04492 6.18936 2.04492 7.99993C2.04492 9.8105 2.05257 10.0375 2.08501 10.7486C2.11741 11.4582 2.23009 11.9428 2.3949 12.3669C2.56527 12.8052 2.79323 13.177 3.16385 13.5477C3.53447 13.9183 3.90625 14.1462 4.34464 14.3166C4.76872 14.4814 5.25331 14.5941 5.96293 14.6265C6.674 14.6589 6.901 14.6666 8.71158 14.6666C10.5221 14.6666 10.7492 14.6589 11.4602 14.6265C12.1698 14.5941 12.6544 14.4814 13.0785 14.3166C13.5169 14.1462 13.8887 13.9183 14.2593 13.5477C14.6299 13.177 14.8579 12.8053 15.0283 12.3669C15.1931 11.9428 15.3057 11.4582 15.3381 10.7486C15.3706 10.0375 15.3783 9.8105 15.3783 7.99993C15.3783 6.18936 15.3706 5.96233 15.3381 5.25129C15.3057 4.54167 15.1931 4.05707 15.0283 3.633C14.8579 3.19461 14.6299 2.82282 14.2593 2.4522C13.8887 2.08158 13.5169 1.85363 13.0785 1.68326C12.6544 1.51844 12.1698 1.40576 11.4602 1.37337C10.7492 1.34093 10.5221 1.33325 8.71158 1.33325ZM8.71158 4.5765C6.82087 4.5765 5.28814 6.10923 5.28814 7.99993C5.28814 9.89063 6.82087 11.4234 8.71158 11.4234C10.6023 11.4234 12.135 9.89063 12.135 7.99993C12.135 6.10923 10.6023 4.5765 8.71158 4.5765ZM8.71158 10.2222C7.48428 10.2222 6.48934 9.22722 6.48934 7.99993C6.48934 6.77264 7.48428 5.7777 8.71158 5.7777C9.93887 5.7777 10.9338 6.77264 10.9338 7.99993C10.9338 9.22722 9.93887 10.2222 8.71158 10.2222ZM13.0703 4.44124C13.0703 4.88308 12.7121 5.24126 12.2703 5.24126C11.8284 5.24126 11.4703 4.88308 11.4703 4.44124C11.4703 3.99941 11.8284 3.64126 12.2703 3.64126C12.7121 3.64126 13.0703 3.99941 13.0703 4.44124Z"
+                                fill="currentColor"></path>
+                            </svg></div>
+                        </div>
+                      </a> <a class="button rounded   svelte-3awqp0" data-variant="primary"
+                        href="https://www.facebook.com/slamwelovemusic/" target="_blank" type="button">
+                        <div class="social-icon svelte-tk8rio">
+                          <div style="display: contents; --size:2rem;"><svg
+                              style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
+                              viewBox="0 0 24 24" fill="none">
+                              <path
+                                d="M13.4186 22V13.0697H16.2326L16.8081 9.58706H13.4186V7.16169C13.4186 6.16667 13.8023 5.4204 15.3372 5.4204H17V2.24876C16.1047 2.12438 15.0814 2 14.186 2C11.2442 2 9.19767 3.74129 9.19767 6.85075V9.58706H6V13.0697H9.19767V22H13.4186Z"
+                                fill="currentColor"></path>
+                            </svg></div>
+                        </div>
+                      </a> <a class="button rounded   svelte-3awqp0" data-variant="primary"
+                        href="https://www.youtube.com/@slamhu" target="_blank" type="button">
+                        <div class="social-icon svelte-tk8rio">
+                          <div style="display: contents; --size:2rem;"><svg
+                              style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
+                              viewBox="0 0 17 16" fill="none">
+                              <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M14.1032 2.96546C14.7183 3.13011 15.2017 3.61347 15.3663 4.22854C15.6638 5.34225 15.665 7.66729 15.665 7.66729C15.665 7.66729 15.665 9.99234 15.3663 11.1061C15.2017 11.7211 14.7183 12.2045 14.1032 12.3691C12.9895 12.6678 8.52169 12.6678 8.52169 12.6678C8.52169 12.6678 4.05392 12.6678 2.9402 12.3691C2.32514 12.2045 1.84178 11.7211 1.67713 11.1061C1.37842 9.99234 1.37842 7.66729 1.37842 7.66729C1.37842 7.66729 1.37842 5.34225 1.67713 4.22854C1.84178 3.61347 2.32514 3.13011 2.9402 2.96546C4.05392 2.66675 8.52169 2.66675 8.52169 2.66675C8.52169 2.66675 12.9895 2.66675 14.1032 2.96546ZM10.8033 7.66751L7.09169 9.81024V5.52474L10.8033 7.66751Z"
+                                fill="currentColor"></path>
+                            </svg></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+                <div class="footer-right svelte-tk8rio">
+                  <div class="links-table svelte-tk8rio">
+                    <div class="link-header svelte-tk8rio">SLAM!</div> <a
+                      class="link-item svelte-tk8rio" href="index.html">Kezdőlap</a> <a
+                      class="link-item svelte-tk8rio" href="musorrend.html">Műsorrend</a> <a
+                      class="link-item svelte-tk8rio" href="ontdek.html">Blog</a> <a
+                      class="link-item svelte-tk8rio" href="artikelen/slam-events.html">Események</a>
+                  </div>
+                  <div class="links-table svelte-tk8rio">
+                    <div class="link-header svelte-tk8rio">Általános linkek</div> <a
+                      class="link-item svelte-tk8rio" href="hallgatas.html">Hallgatás</a> <a
+                      class="link-item svelte-tk8rio" href="programmas.html">Műsorok</a> <a
+                      class="link-item svelte-tk8rio" href="djs.html">DJ's</a> <a
+                      class="link-item svelte-tk8rio" href="artikelen/contact.html">Kapcsolat</a>
+                  </div>
+                </div>
+              </div>
+              <div class="footer-bottom svelte-tk8rio">
+                <p>© SLAM 2026 - Minden jog fenntartva!</p>
+              </div>
+            </footer>`;
+
+  function mountFooter() {
+    var mount = document.getElementById('slam-footer-mount');
+    if (!mount) return false;
+    mount.outerHTML = FOOTER_HTML;
+    return true;
+  }
+
+  if (!mountFooter()) {
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries += 1;
+      if (mountFooter() || tries > 30) clearInterval(iv);
+    }, 200);
   }
 })();

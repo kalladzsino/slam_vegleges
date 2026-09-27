@@ -1,0 +1,9 @@
+Playerhez:
+
+Több bitráta / adattakarékos opció (pl. 128k mobilra, 192–320k asztali gépre) minőségválasztóval.
+Cast támogatás — Chromecast / AirPlay / kimeneti eszközválasztó, így valódi hangszórón játssza le a tartalmat laptop helyett.
+Tetszik/Kedvencnek jelöld meg az aktuális számot , és mentsd el a "Kedvencek" mappába (a meglévő "Fiókom" fiók belépési pontjához kapcsolódik).
+„Megnyitás Spotify-ban / YouTube-on” az aktuális számhoz – már futtatsz Spotify-tartalmat, így ez lezárja a hallgatás és a lejátszási lista közötti ciklust.
+Dalkérés/kiáltás gomb élő adások alatt (átirányítás a Twitch chatbe vagy egy űrlapra).
+
+

@@ -290,8 +290,13 @@
           </label>
 
           <label class="field field-full">
-            <span>Link (hova mutasson a kártya)</span>
-            <input type="url" id="postLink" placeholder="https://slamradio.rf.gd/…">
+            <span>Cikk tartalma (a bejegyzés saját oldalán jelenik meg)</span>
+            <textarea id="postTartalom" rows="8" placeholder="Írd meg szabadon a cikk szövegét — akár egyszerű bekezdésekkel (pl. &lt;p&gt;Szöveg…&lt;/p&gt;), akár beágyazott HTML elemekkel (kép, Spotify/YouTube iframe, stb.). Ha üresen hagyod, a fenti rövid leírás jelenik meg helyette."></textarea>
+          </label>
+
+          <label class="field field-full">
+            <span>Egyedi link (opcionális)</span>
+            <input type="url" id="postLink" placeholder="Hagyd üresen — így automatikusan saját cikkoldalt kap (artikelen/alap.html)">
           </label>
 
           <label class="field-check field-full">
@@ -393,6 +398,7 @@
   var postDatum = document.getElementById('postDatum');
   var postLeiras = document.getElementById('postLeiras');
   var postKep = document.getElementById('postKep');
+  var postTartalom = document.getElementById('postTartalom');
   var postLink = document.getElementById('postLink');
   var postKiemelt = document.getElementById('postKiemelt');
   var thumbPreview = document.getElementById('thumbPreview');
@@ -417,6 +423,13 @@
 
   var posts = [];
   var scheduleOverrides = {}; /* 'ÉÉÉÉ-HH-NN' -> [ {time,end,name,dj,initial,url,photo,desc,genre}, ... ] */
+
+  /* minden bejegyzés automatikusan kap egy saját cikkoldalt: artikelen/alap.html?id=<id>
+    (kivéve, ha a "Link" mezőben egyedi/külső URL van megadva) — lásd articleUrlFor() lent */
+  var ARTICLE_PAGE = 'artikelen/alap.html';
+  function articleUrlFor(p) {
+    return (p && p.link) ? p.link : (ARTICLE_PAGE + '?id=' + encodeURIComponent(p && p.id || ''));
+  }
 
   /* ---------------- MEGLÉVŐ CIKKEK (a jelenlegi index.html-ből) ----------------
     Az adatok a TRENDING rács és a hero-csúszka (.slam-sl-slide) valódi
@@ -612,6 +625,7 @@
           '<p class="post-row-title">' + esc(p.cim || '') + '</p>' +
         '</div>' +
         '<div class="post-row-actions">' +
+          '<a class="btn btn-ghost btn-sm" href="' + esc(articleUrlFor(p)) + '" target="_blank" rel="noopener">Megnyitás</a>' +
           '<button type="button" class="btn btn-ghost btn-sm" data-edit="' + esc(p.id) + '">Szerkesztés</button>' +
           '<button type="button" class="btn btn-danger btn-sm" data-del="' + esc(p.id) + '">Törlés</button>' +
         '</div>';
@@ -649,6 +663,7 @@
     postDatum.value = p.datum || '';
     postLeiras.value = p.leiras || '';
     postKep.value = p.kep || '';
+    postTartalom.value = p.tartalom || '';
     postLink.value = p.link || '';
     postKiemelt.checked = !!p.kiemelt;
     formTitle.textContent = 'Bejegyzés szerkesztése';
@@ -678,6 +693,7 @@
       datum: postDatum.value,
       leiras: postLeiras.value.trim(),
       kep: postKep.value.trim(),
+      tartalom: postTartalom.value,
       link: postLink.value.trim(),
       kiemelt: postKiemelt.checked
     };

@@ -19,7 +19,7 @@
 
     <link href="_app/immutable/assets/0.b9ef364e.css" rel="stylesheet">
     <title>SLAM - WE. LOVE. MUSIC</title>
-    <link rel="shortcut icon" href="img/01/logos.png">
+    <link rel="shortcut icon" href="/img/01/logos.png">
     <link rel="canonical" href="index.html">
     <meta name="description" content="SLAM rádióállomás weboldala">
       <meta property="og:title" content="SLAM! WE. LOVE. MUSIC">
@@ -28,1688 +28,10 @@
       <meta property="twitter:description" content="SLAM">
       <meta property="twitter:image" content="https://slamradio.rf.gd/img/SLAM.png">
     <link rel="stylesheet" href="_app/immutable/assets/slamcss-all.css" />
-    <style>
-    /* =========================================================
-      SLAM — a mini lejátszó ÚJ kinézete, a beküldött referencia-
-      kép alapján:
-
-        - tömör, sötétkék, teljesen lekerekített ("pirula" alakú)
-          sáv
-        - a borító-fotó (ha van valódi műsor-/DJ-kép) kiemelkedik,
-          kilóg a sáv teteje fölé — mintha "kivágott" karakter
-          lenne a sávra ragasztva
-        - a zöld "ÉLŐ ADÁS" jelvény helyett egy sima, üveges
-          IDŐSÁV-jelvény (pl. "07:00 - 10:00"), ami a műsor
-          tényleges kezdés–vég idejéből épül
-        - nagy, fekete play-gomb lágy kék glow-val
-        - a megosztás-gomb ezen a designon nem jelenik meg
-
-      Ha nincs fotó a műsorhoz, a borító visszaáll egy kompakt,
-      a sávon belül maradó logó-négyzetre (img/01/logos2.png).
-
-      Ez a blokk a slamcss-all.css UTÁN töltődik be, így felül-
-      írja az abban lévő slam-player-minimal.css szabályait.
-      ========================================================= */
-
-    :root {
-      --slamp-blue: #0260f0;
-      --slamp-green: var(--brand-secondary, #27dc54);
-      --slamp-navy: rgba(4, 40, 110, .6);
-      --slamp-bar-1: #143da8;
-      --slamp-bar-2: #0a2166;
-    }
-
-    /* JAVÍTÁS: a compiled CSS-ben az agootack @font-face format("ttf")-je
-      érvénytelen érték egy .otf fájlhoz (helyesen "opentype" kellene),
-      ezért a betűtípus egyes böngészőkben sosem töltődött be, és minden-
-      hol (a mini-lejátszó idő-jelvényén is) a tartalék sans-serif jelent
-      meg helyette. Ez a helyes deklaráció felülírja/pótolja azt. */
-    @font-face {
-      font-family: agootack;
-      src: url("fonts/agootack.otf") format("opentype");
-      font-display: swap;
-    }
-
-    /* ============ MINI LEJÁTSZÓ ============ */
-
-    /* ---------- a sáv: tömör, sötétkék, pirula alakú kártya ---------- */
-    .slam-mini-main.slamp-bar {
-      position: relative;
-      overflow: visible; /* a borító-fotó kiléphet a sáv teteje fölé */
-      contain: none; /* a slamcss-all.css contain:paint szabálya kliens-oldalon levágná a kilógó fotót, felülírjuk */
-      /* background: linear-gradient(180deg, var(--slamp-bar-1), var(--slamp-bar-2)); */
-      background-image: url('img/01/bga.png');
-      border: none;
-      border-radius: 9999px;
-      box-shadow: 0 20px 44px -18px rgba(6, 20, 70, .75);
-      padding-left: 13rem;
-    }
-
-    @media (max-width: 500px) {
-      .slam-mini-main.slamp-bar { padding-left: 10rem; }
-    }
-
-    /* ---------- borító: fallback-logónál kompakt négyzet a sávon belül;
-      valódi fotónál nagy, a sáv teteje fölé kilógó "kivágott" alak ----------
-      MEGJEGYZÉS: az oldal gyökér font-size-a 62.5% (1rem = 10px), ezért
-      itt a "nagy, kilógó" hatáshoz jóval nagyobb rem-érték kell, mint egy
-      szokásos 16px/rem oldalon számolnánk. ---------- */
-    .slamp-art {
-      position: absolute;
-      left: 1.2rem;
-      bottom: .9rem;
-      width: 6rem;
-      height: 5.4rem;
-      z-index: 2;
-      background: var(--slamp-navy);
-      border-radius: 1rem;
-      box-shadow: 0 2px 6px rgba(255, 255, 255, .2);
-      overflow: hidden;
-    }
-
-    .slamp-art svg { color: #ffffff; }
-
-    .slamp-art img.slamp-art-img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: contain;
-      padding: .7rem;
-      box-sizing: border-box;
-    }
-
-    .slamp-art.has-photo {
-      bottom: 0;
-      width: 10.6rem;
-      height: 18rem;
-      background: none;
-      box-shadow: none;
-      border-radius: 0;
-      overflow: visible;
-    }
-
-    @media (max-width: 500px) {
-      .slamp-art.has-photo { width: 8.2rem; height: 14rem; }
-    }
-
-    .slamp-art.has-photo img.slamp-art-img {
-      object-fit: contain;
-      object-position: bottom center;
-      padding: 0;
-      border-radius: 1.4rem;
-      filter: drop-shadow(0 14px 16px rgba(0, 0, 0, .4));
-    }
-
-    /* ---------- logó-fallback: ha nincs DJ-fotó, a két pöttyös
-      SLAM-logó (img/01/logos.png) lóg ki a sáv teteje fölé,
-      ugyanúgy, mint a valódi fotó, csak kisebb/keskenyebb méretben ---------- */
-    .slamp-art.has-logo {
-      bottom: 0;
-      width: 10.6rem;
-      height: 18rem;
-      background: none;
-      box-shadow: none;
-      border-radius: 0;
-      overflow: visible;
-    }
-
-    @media (max-width: 500px) {
-      .slamp-art.has-logo { width: 8.2rem; height: 14rem; }
-    }
-
-    .slamp-art.has-logo img.slamp-art-img {
-      object-fit: cover;
-      object-position: bottom center;
-      padding: 0;
-      filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .35));
-    }
-
-    /* ---------- idősáv-jelvény: ugyanaz a stílus, mint a PROGRAM kártyák
-      időpont-jelvénye (navy háttér, agootack Regular, fehér drop-shadow) ---------- */
-    .slamp-status {
-      background: #0645a8;
-      border: none;
-      padding: .6rem 1.5rem;
-      box-shadow: 0 2px 6px rgba(255, 255, 255, .35);
-    }
-
-    .slamp-status-dot { display: none; }
-
-    .slamp-status-label {
-      display: inline-block;
-      font: 400 1.8rem/1 agootack, var(--font-primary, sans-serif);
-      letter-spacing: .02em;
-      color: #fff;
-      text-transform: none;
-      transform: translate(0px, 3px); /* ugyanaz a nudge, mint a PROGRAM kártya időpontjánál */
-    }
-
-    /* ---------- cím ---------- */
-    .slamp-meta-title {
-      font: 900 2.1rem/1.15 'Inter', var(--font-hackney, var(--font-primary, sans-serif));
-      text-transform: uppercase;
-      letter-spacing: .01em;
-      color: #fff;
-      text-shadow: 0 3px 7px rgba(0, 0, 0, .4);
-    }
-
-    @media (min-width: 700px) {
-      .slamp-meta-title { font-size: 2.3rem; }
-    }
-
-    @media (max-width: 500px) {
-      .slamp-meta-title { font-size: 1.6rem; }
-    }
-
-    /* ebben a designban nincs külön alcím-sor — az idő-pill + a fotó viszi a szerepét */
-    .slamp-meta-sub { display: none; }
-
-    /* ---------- play-gomb: fekete kör, tisztán diffúz (nem gyűrűs) kék glow-val,
-      világoskék play-háromszög-ikonnal ---------- */
-    .slamp-play {
-      width: 5.6rem;
-      height: 5.6rem;
-      background: #0646A8;
-      color: hsl(0, 0%, 100%);
-      box-shadow: 1px 1px 1px 1px rgb(255, 255, 255);
-      transition: transform .25s cubic-bezier(.34, 1.56, .64, 1),  .25s ease;
-    }
-
-    .slamp-play:hover { transform: scale(1.06); }
-    .slamp-play:active { transform: scale(.94); }
-
-    .slam-mini-player.playing .slamp-play {
-      background: #0b0e14;
-      color: #d5d9df;
-      box-shadow: 0 0 40px 11px rgba(43, 110, 255, .7);
-    }
-
-    /* ---------- hangerő ---------- */
-    .slamp-volume { width: 14rem; max-width: 14rem; gap: .9rem; }
-
-    .slamp-vol-icon {
-      width: 2.6rem;
-      height: 2.6rem;
-      color: rgba(255, 255, 255, .75);
-    }
-    .slamp-vol-icon:hover { color: #fff; }
-    .slamp-vol-icon svg { width: 1.9rem; height: 1.9rem; }
-
-    .slamp-vol-range {
-      height: .65rem;
-      border-radius: .33rem;
-      background: rgba(255, 255, 255, .28);
-    }
-
-    .slamp-vol-range::-webkit-slider-thumb {
-      width: 1.8rem;
-      height: 1.8rem;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
-    }
-
-    .slamp-vol-range::-moz-range-thumb {
-      width: 1.8rem;
-      height: 1.8rem;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
-    }
-
-    /* ---------- megosztás-gomb: a referencia-képen nem szerepel ---------- */
-    .slam-mini-share { display: none; }
-
-    /* ============ TELJES KÉPERNYŐS LEJÁTSZÓ ============ */
-    /* ugyanaz a kék→türkiz kártya-nyelv, nagyban */
-
-    .slam-full-badge {
-      display: inline-flex;
-      padding: .3rem 1rem .3rem .8rem;
-      border-radius: 100px;
-      background: var(--slamp-green);
-      color: #06210f;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
-    }
-
-    .slam-full-badge .slam-live-dot { background: #06210f; }
-
-    .slam-full-track {
-      font: 900 2.4rem/1.2 'Inter', var(--font-hackney, var(--font-primary, sans-serif));
-      text-transform: uppercase;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, .25);
-    }
-
-    .slam-full-art {
-      background: rgba(16, 20, 44, .35);
-      border: 1px solid rgba(255, 255, 255, .12);
-      box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .55);
-    }
-
-    .slam-full-progress-fill {
-      background: var(--slamp-green);
-    }
-
-    .slam-full-play {
-      background: var(--slamp-blue);
-      color: #fff;
-      box-shadow: 0 14px 30px -8px rgba(2, 96, 240, .6);
-    }
-
-    .slam-full-player.playing .slam-full-play {
-      background: var(--slamp-green);
-      color: #06210f;
-      box-shadow: 0 14px 30px -8px rgba(39, 220, 84, .55);
-    }
-
-    .slam-full-next {
-      background: rgba(2, 96, 240, .12);
-      border: 1px solid rgba(2, 96, 240, .3);
-    }
-
-    .slam-full-next svg { stroke: var(--slamp-green); }
-
-    .slam-full-actions button.active,
-    .slam-full-actions button.active svg { color: var(--slamp-green); }
-
-    /* =========================================================
-      ÉLŐ SÁV HERO — a beküldött design (ASOT BY WEEKENDER, 2x export,
-      2880×1316px = 1440×658 kártya) pixelre mért újraépítése.
-
-      MINDEN méret a kártya SZÉLESSÉGÉHEZ arányos: --u = a kártya
-      szélessége / 1440, tehát "1u" = 1px egy 1440px széles kártyán
-      (a mock px-értékei ÷2). A 130rem-es tartalom-oszlopban a kártya
-      max. 1236px, ott 1u ≈ 0.858px — minden (méret, pozíció, árnyék-
-      blur, betű) egyszerre, arányosan kicsinyedik, így az elrendezés
-      bármilyen szélességen ugyanaz marad.
-
-      Mért értékek (mock px ÷ 2 = u):
-        - háttér: függőleges gradiens #0260f0 → #0645a8
-        - gyűrűk: a bal-felső SARKÉBAN középpontosak, sugár 136 / 205.5 /
-          268.5 / 333u, színek #1c7cf6 / #1b6bd2 / #155bb4 / #13488c,
-          a legkülső körön fehér külső glow (0 0 18u rgba(255,255,255,.37))
-        - fotó: x=93.5u, tető y=40u, szélesség 534u, alul levágva,
-          körülötte sötét lágy árnyék (drop-shadow 0 0 42u, .40)
-        - play: 73u kör #0645a8, x=708u, y=152.5u, jobb-alsó fehér perem
-        - idő-pirula: 223×40.5u #0645a8, fehér alsó glow
-        - cím: Inter 800, 40.5u, cap-top y=196.5u
-        - MOST SZÓL pirula: 624.5×94.5u, x=708u, y=337u, #025ce7,
-          belső fehér fény fent/balra, sötét külső árnyék lent
-        - PLAYLIST pirula: 167.5×34u, jobbra igazítva, y=453u, #0260f0,
-          fehér külső glow, kör-nyíl 23u
-      ========================================================= */
-
-    /* a hero a "container": a kártya cqw-egységei a tartalom-szélességhez
-      (=kártya-szélességhez) igazodnak, nem a viewporthoz */
-    .slam-live-hero { container-type: inline-size; container-name: livehero; }
-
-    .slam-live-card {
-      --u: calc(100cqw / 1440);
-      display: block;
-      position: relative;
-      isolation: isolate;
-      overflow: hidden;
-      aspect-ratio: 1440 / 658;
-      height: auto;
-      min-height: 0;
-      grid-template-columns: none;
-      background: linear-gradient(180deg, #0260f0 0%, #0645a8 100%);
-      font-family: 'Inter', var(--font-primary, sans-serif);
-      color: #fff;
-    }
-
-    /* ---------- koncentrikus gyűrűk (a bal-felső sarok a középpont) ---------- */
-    .slam-live-rings {
-      position: absolute;
-      left: 0; top: 0;
-      width: calc(860 * var(--u));
-      aspect-ratio: 1 / 1;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      z-index: 0;
-      pointer-events: none;
-      background: radial-gradient(circle closest-side,
-        #1c7cf6 0 40.84%,
-        #1b6bd2 40.84% 61.71%,
-        #155bb4 61.71% 80.63%,
-        #13488c 80.63% 100%);
-      box-shadow: 0 0 calc(18 * var(--u)) rgba(255, 255, 255, .37);
-    }
-
-    /* ---------- ÉLŐBEN jelvény: a designon nincs — elrejtve, a DOM-ban
-      marad (a JS írja), visszahozni: a display:none sort kell törölni ---------- */
-    .slam-live-card > .slam-live-badge { display: none; }
-
-    /* ---------- DJ-fotó ---------- */
-    .slam-live-card > .slam-live-art-wrap {
-      position: absolute;
-      z-index: 1;
-      left: calc(93.5 * var(--u));
-      top: calc(40 * var(--u));
-      bottom: 0;
-      width: calc(534 * var(--u));
-      max-width: none;
-      height: auto;
-      display: block;
-      animation: none;
-      overflow: visible;
-      pointer-events: none;
-    }
-    .slam-live-card > .slam-live-art-wrap img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
-      border-radius: 0;
-      -webkit-mask-image: none;
-      mask-image: none;
-      filter: drop-shadow(0 0 calc(42 * var(--u)) rgba(0, 0, 0, .40));
-    }
-    /* fotó nélkül: nagy, halvány monogram a bal alsó sarokban */
-    .slam-live-card > .slam-live-art-wrap .slam-live-monogram {
-      position: absolute;
-      left: calc(40 * var(--u));
-      bottom: calc(-10 * var(--u));
-      font-size: calc(220 * var(--u));
-      line-height: 1;
-      color: rgba(255, 255, 255, .35);
-      white-space: nowrap;
-    }
-
-    /* ---------- jobb oszlop: x=708u-tól, a kártya tetejétől ---------- */
-    .slam-live-right {
-      position: absolute;
-      z-index: 2;
-      left: calc(708 * var(--u));
-      top: 0;
-      width: calc(624.5 * var(--u));
-      height: auto;
-      margin: 0;
-      padding: calc(142 * var(--u)) 0 0;
-      display: block;
-      gap: 0;
-      background: none;
-      box-sizing: border-box;
-    }
-    .slam-live-right::before { display: none; }
-
-    /* ---------- play gomb (a kártya y=152.5u-jén, az oszlop bal szélén) ---------- */
-    .slam-live-eyebrow {
-      position: static;
-      display: flex;
-      align-items: center;
-      gap: 0;
-      flex-wrap: nowrap;
-      height: calc(40.5 * var(--u));
-      margin: 0 0 0 calc(100 * var(--u));
-    }
-    .slam-live-eyebrow-label { display: none; }
-
-    .slam-live-play {
-      position: absolute;
-      left: 0;
-      top: calc(152 * var(--u));
-      order: 0;
-      width: calc(73 * var(--u));
-      height: calc(73 * var(--u));
-      padding: 0;
-      border: none;
-      border-radius: 50%;
-      background: #0645a8;
-      color: #fff;
-      /* vékony fehér "sarló" csak jobb-lent (bal/felül nincs): a mock 2x
-        exportján ~3px vastag → ~1.5u */
-      box-shadow:
-        calc(.7 * var(--u)) calc(.7 * var(--u)) calc(.7 * var(--u)) calc(.5 * var(--u)) rgba(255, 255, 255, .92),
-        0 0 calc(4 * var(--u)) rgba(255, 255, 255, .35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .slam-live-play svg {
-      width: calc(28.3 * var(--u));
-      height: calc(28.3 * var(--u));
-      color: #fff;
-      transform: scaleX(1.15);
-    }
-    .slam-live-play svg path { stroke: currentColor; stroke-width: .8; stroke-linejoin: round; }
-    .slam-live-play:hover { transform: scale(1.05); }
-    .slam-live-play.playing { background: #fff; box-shadow: none; }
-    .slam-live-play.playing svg { color: #0645a8; transform: none; }
-
-    /* ---------- idősáv-pirula ---------- */
-    .slam-live-time-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-      height: max(22px, calc(40.5 * var(--u)));
-      min-width: max(108px, calc(223 * var(--u)));
-      padding: 0 max(12px, calc(26 * var(--u)));
-      font: 400 max(12px, calc(27.3 * var(--u)))/1 agootack, 'Inter', var(--font-primary, sans-serif);
-      color: #fff;
-      white-space: nowrap;
-      background: #0645a8;
-      border: none;
-      border-radius: 999px;
-      /* a betű ascent/descent aránya miatt sima "line-height:1 + center"
-        mellett is följebb ült a szöveg — ez a betűtípus-független trim
-        a nagybetű-magasságra vágja a sort, így a felirat pontosan a
-        pirula függőleges közepére kerül (ugyanaz a technika, mint az
-        "ÉLŐBEN" jelvénynél) */
-      text-box: trim-both cap alphabetic;
-      box-shadow:
-        0 calc(5 * var(--u)) calc(4.4 * var(--u)) calc(-1.5 * var(--u)) rgba(255, 255, 255, .74),
-        0 0 calc(5 * var(--u)) rgba(255, 255, 255, .4);
-      text-shadow: 0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, .25);
-    }
-    /* a lefelé-tolás csak a szövegre (a belső .t span-re) kerül, nem a
-      pirulára. A pirula mindig 40.5u magas → 1u ≈ (mért pirulamagasság
-      / 40.5) px. A 7u-s próbánál a screenshoton a rés felül 11px, alul
-      7px volt (2px-szel túl lent) — ebből visszaszámolva a pontos
-      érték 4.6u.
-      A fenti tulajdonságok (height/min-width/padding/font) mind
-      max(Xpx, Yu) formában skáláznak, hogy telefonon/tableten (kis
-      cqw-nél) ne törpüljön el a pirula — ugyanezt a floor-t itt is
-      alkalmazzuk (a betűméret 12px-es floorjával arányosan: 4.6/27.3 ×
-      12 ≈ 2px), különben kis konténerszélességnél a pusztán u-alapú
-      eltolás elszakadna a (már floor-olt) betűmérettől, és a felirat
-      megint nem lenne középen */
-    .slam-live-time-pill .t {
-      display: inline-block;
-      transform: translateY(max(2px, calc(4.6 * var(--u))));
-    }
-
-    /* ---------- cím ---------- */
-    .slam-live-show-title {
-      margin: calc(6.8 * var(--u)) 0 0 calc(100 * var(--u));
-      max-width: calc(524.5 * var(--u));
-      font: 800 max(19px, calc(40.05 * var(--u)))/max(22px, calc(46 * var(--u))) 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: 0;
-      text-transform: uppercase;
-      color: #fff;
-      text-shadow: 0 calc(4 * var(--u)) calc(5 * var(--u)) rgba(0, 0, 0, .32);
-    }
-
-    .slam-live-dj-row,
-    .slam-live-sep { display: none; }
-
-    /* ---------- MOST SZÓL pirula ---------- */
-    .slam-live-track {
-      display: flex;
-      align-items: center;
-      box-sizing: border-box;
-      width: 100%;
-      max-width: none;
-      height: calc(94.5 * var(--u));
-      margin: calc(101.7 * var(--u)) 0 0;
-      padding: 0 0 0 calc(38 * var(--u));
-      gap: 0;
-      background: #025ce7;
-      border: none;
-      border-radius: 999px;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      /* külső: sötét árnyék lent (fent nincs); belső: erős fehér fény
-        fent/balra, alig látható lent/jobbra — mérve a mock élprofiljain */
-      box-shadow:
-        0 calc(3.5 * var(--u)) calc(3.5 * var(--u)) rgba(0, 0, 0, .25),
-        inset 0 calc(2.25 * var(--u)) calc(4 * var(--u)) rgba(255, 255, 255, .9),
-        inset calc(8.1 * var(--u)) 0 calc(5.4 * var(--u)) calc(-5 * var(--u)) rgba(255, 255, 255, .9),
-        inset calc(-4 * var(--u)) 0 calc(3 * var(--u)) calc(-3 * var(--u)) rgba(255, 255, 255, .14),
-        inset 0 calc(-.75 * var(--u)) calc(1.5 * var(--u)) rgba(255, 255, 255, .2);
-    }
-    .slam-live-track-label {
-      flex: none;
-      display: block;
-      width: max(34px, calc(50 * var(--u)));
-      margin: 0 max(8px, calc(19 * var(--u))) 0 0;
-      font: 500 max(9px, calc(15 * var(--u)))/1.2 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: 0;
-      text-align: center;
-      text-transform: uppercase;
-      color: #fff;
-    }
-    .slam-live-track-art {
-      flex: none;
-      box-sizing: border-box;
-      width: calc(70 * var(--u));
-      height: calc(70 * var(--u));
-      margin: 0 calc(13.5 * var(--u)) 0 0;
-      padding: calc(19.25 * var(--u));
-      border-radius: calc(3.5 * var(--u));
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .slam-live-track-art img { width: 100%; height: 100%; object-fit: contain; }
-    .slam-live-track-info { flex: 1; min-width: 0; position: relative; top: calc(1 * var(--u)); }
-    .slam-live-track-title {
-      font: 800 max(11px, calc(20.15 * var(--u)))/1.3 'Inter', var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      color: #fff;
-    }
-    .slam-live-track-artist {
-      margin: 0;
-      font: 400 max(11px, calc(20 * var(--u)))/1.3 'Inter', var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      color: #fff;
-    }
-
-    /* ---------- PLAYLIST pirula ---------- */
-    .slam-live-next-block { display: none; }
-    .slam-live-bottom {
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
-      flex-wrap: nowrap;
-      gap: 0;
-      margin: calc(21.5 * var(--u)) 0 0;
-    }
-    .slam-live-more {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      box-sizing: border-box;
-      width: max(104px, calc(167.5 * var(--u)));
-      height: max(25px, calc(34 * var(--u)));
-      padding: 0 0 0 max(19px, calc(45.5 * var(--u)));
-      gap: 0;
-      font: 700 max(10.5px, calc(14 * var(--u)))/1 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: 0;
-      text-transform: uppercase;
-      text-decoration: none;
-      white-space: nowrap;
-      color: #fff;
-      background: #0260f0;
-      border: none;
-      border-radius: 999px;
-      box-shadow:
-        0 0 calc(4.3 * var(--u)) rgba(255, 255, 255, 1),
-        inset 0 calc(3.8 * var(--u)) calc(3.8 * var(--u)) rgba(0, 0, 0, .27),
-        inset calc(5.4 * var(--u)) 0 calc(2.4 * var(--u)) calc(-3 * var(--u)) rgba(0, 0, 0, .09),
-        inset calc(-5.4 * var(--u)) 0 calc(2.4 * var(--u)) calc(-3 * var(--u)) rgba(0, 0, 0, .09);
-      text-shadow: 0 calc(2 * var(--u)) calc(4 * var(--u)) rgba(255, 255, 255, .45);
-    }
-    .slam-live-more:hover { background: #1a70f5; color: #fff; border: none; }
-    .slam-live-more-ico {
-      position: absolute;
-      right: calc(5.5 * var(--u));
-      top: 50%;
-      width: max(19px, calc(23 * var(--u)));
-      height: max(19px, calc(23 * var(--u)));
-      transform: translateY(-50%);
-      border-radius: 50%;
-      background: linear-gradient(180deg, #386cbc 0%, #245eb5 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .slam-live-more-ico svg {
-      width: max(20px, calc(24 * var(--u)));
-      height: max(20px, calc(24 * var(--u)));
-      color: #fff;
-      stroke-width: 2.4;
-      transition: none;
-      filter: drop-shadow(0 calc(.5 * var(--u)) calc(1.5 * var(--u)) rgba(0, 0, 0, .5));
-    }
-    .slam-live-more:hover .slam-live-more-ico svg { transform: none; }
-
-    /* =========================================================
-      TELEFON / TABLET: az eddigi elrendezés a teljes kártyát egy
-      1440u-s deskop-mock arányában (aspect-ratio: 1440/658) csak
-      egyben kicsinyíti — keskeny konténernél ez egy nagyon alacsony,
-      "lapos" kártyát ad, amiben a jobb oszlop (x=708u-tól) a
-      szélesség majdnem felét kihagyja (a bal oldal a fotó nélkül
-      üres gyűrű-dísz), a cím pedig két sorba török, mert a
-      betűméret px-floorja már nem követi a doboz arányos zsugorodását.
-      900px konténerszélesség alatt ehelyett egy normál, egymás alá
-      rendezett (nem abszolút pozicionált) elrendezésre váltunk, fix
-      rem-alapú méretekkel — ez a szélesség 100%-át kihasználja és
-      minden elem olvasható méretű marad. ========================= */
-    @container livehero (max-width: 900px) {
-      .slam-live-card {
-        aspect-ratio: auto;
-        display: block;
-        padding: 2rem 1.5rem 1.8rem;
-      }
-      .slam-live-rings {
-        width: 16rem;
-        opacity: .6;
-      }
-      /* mobilon/tableten is látszódjon a DJ-fotó (ha van) — nem a teljes
-        elrejtés a jó megoldás, hanem egy normál, a tartalom fölé kerülő
-        blokk-elem, ami a kártya szélességét tölti ki. Ha nincs fotó
-        (csak a monogram-fallback), az is ugyanide kerül */
-      .slam-live-card > .slam-live-art-wrap {
-        position: static;
-        width: 100%;
-        /* ugyanaz az arány, mint asztalon (534:618 ≈ kép szélesség:magasság
-          a --u-alapú elrendezésben) — így a fotó mindig ugyanúgy, a teljes
-          arcot/szemüveget/kezet mutatva vágódik ki, csak kisebb méretben,
-          nem egy önkényes, alacsony 12rem-es sávban */
-        aspect-ratio: 534 / 618;
-        height: auto;
-        max-height: 70vh; /* biztonsági felső korlát, normál tablet-magasságnál sosem vág bele */
-        margin: 0 0 1.4rem;
-        border-radius: .9rem;
-        overflow: hidden;
-      }
-      .slam-live-card > .slam-live-art-wrap img {
-        position: static;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-        border-radius: inherit;
-        filter: none;
-      }
-      .slam-live-card > .slam-live-art-wrap .slam-live-monogram {
-        left: 1rem;
-        bottom: -.5rem;
-        font-size: 5.5rem;
-      }
-
-      .slam-live-right {
-        position: static;
-        z-index: 2;
-        width: 100%;
-        padding: 0;
-      }
-
-      .slam-live-eyebrow {
-        height: auto;
-        margin: 0;
-        gap: .9rem;
-      }
-      .slam-live-play {
-        position: static;
-        flex: none;
-        width: 3.4rem;
-        height: 3.4rem;
-      }
-      .slam-live-play svg { width: 1.3rem; height: 1.3rem; }
-
-      .slam-live-time-pill {
-        height: 2.2rem;
-        min-width: 0;
-        padding: 0 1.1rem;
-        font-size: 1rem;
-      }
-      .slam-live-time-pill .t { transform: translateY(2px); }
-
-      .slam-live-show-title {
-        margin: 1rem 0 0;
-        max-width: none;
-        font: 800 1.7rem/1.2 'Inter', var(--font-primary, sans-serif);
-      }
-
-      .slam-live-track {
-        height: auto;
-        min-height: 3.6rem;
-        margin: 1.4rem 0 0;
-        padding: .5rem .8rem .5rem 1rem;
-      }
-      .slam-live-track-label {
-        width: auto;
-        margin: 0 .7rem 0 0;
-        font-size: .7rem;
-      }
-      .slam-live-track-art {
-        width: 2.6rem;
-        height: 2.6rem;
-        margin: 0 .8rem 0 0;
-        padding: .7rem;
-        border-radius: .4rem;
-      }
-      .slam-live-track-title { font-size: .85rem; }
-      .slam-live-track-artist { font-size: .8rem; }
-
-      .slam-live-bottom {
-        justify-content: flex-start;
-        margin: 1.1rem 0 0;
-      }
-      .slam-live-more {
-        width: auto;
-        height: 2.1rem;
-        padding: 0 1.6rem 0 1.1rem;
-        font-size: .78rem;
-      }
-      .slam-live-more-ico {
-        right: .35rem;
-        width: 1.3rem;
-        height: 1.3rem;
-      }
-      .slam-live-more-ico svg { width: 1.4rem; height: 1.4rem; }
-    }
-
-    /* =========================================================
-      SLAM — FEJLÉC (HEADER) új kinézete a beküldött referencia-
-      kép alapján:
-        - tömör fekete sáv
-        - bal oldalt: hamburger-ikon + KEZDŐLAP / BLOGJAINK / RÁDIÓ
-        - középen: a SLAM-logó (a meglévő img/01/logos.png)
-        - jobb szélen: zöld, szerves ("blob") formába hajló folt,
-          rajta fehér profil-ikon + FIÓKOM felirat
-      A WEBCAM/Twitch gomb helyére a FIÓKOM pirula kerül — ha ez
-      mégis kelljen máshol, szólj és visszatesszük külön elemként.
-      ========================================================= */
-    .header.svelte-1we88o3 {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
-      background: #0a0a0a;
-      height: 6.6rem;
-      padding: 0 0 0 2.4rem;
-      overflow: visible;
-      z-index: 100;
-    }
-
-    .mobile-spacer.svelte-1we88o3 { display: none; }
-
-    /* ---------- bal oldal: hamburger + nav ---------- */
-    .header-left.svelte-1we88o3 {
-      position: static;
-      display: flex;
-      align-items: center;
-      gap: 2.6rem;
-      height: 100%;
-    }
-
-    .menu-button.svelte-1jd024i {
-      position: relative;
-      width: 2.8rem;
-      height: 2rem;
-      padding: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      flex: none;
-    }
-    .menu-button.svelte-1jd024i::before,
-    .menu-button.svelte-1jd024i::after,
-    .menu-button.svelte-1jd024i span {
-      content: "";
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: .28rem;
-      background: #fff;
-      border-radius: 999px;
-    }
-    .menu-button.svelte-1jd024i::before { top: 0; }
-    .menu-button.svelte-1jd024i::after  { bottom: 0; }
-    .menu-button.svelte-1jd024i span    { top: 50%; transform: translateY(-50%); }
-
-    /* ---------- logó: a header-left DOM-jában marad (a drawer-gomb
-      logikája ne sérüljön), de vizuálisan a sáv KÖZEPÉRE kerül —
-      ehhez a .header-en position:relative kell (fent már beállítva),
-      a logó pedig ahhoz képest van középre igazítva */
-    .header-left.svelte-1we88o3 > a:first-of-type .logo.svelte-1we88o3,
-    .header-left.svelte-1we88o3 .logo.svelte-1we88o3 {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      height: 3.4rem;
-      width: auto;
-      max-width: none;
-    }
-
-    /* ---------- nav-linkek ---------- */
-    .header-item.svelte-1rklruc {
-      border: none !important;
-      padding: 0;
-    }
-    .header-item.svelte-1rklruc .title.svelte-1rklruc {
-      font: 800 1.5rem/1 'Inter', var(--font-primary, sans-serif);
-      text-transform: uppercase;
-      letter-spacing: .01em;
-      color: #fff;
-      white-space: nowrap;
-    }
-
-    /* ---------- jobb oldal: FIÓKOM pirula a zöld folton ----------
-      A háttérszínt/formát MAGÁRA a .button-container-re tesszük (nem egy
-      kilógó ::before-ra), hogy semmilyen szülő overflow ne vághassa le;
-      a Fiókom-linkre pedig all:unset + !important kerül, mert a
-      slamcss-all.css egy kész fehér gomb-kinézetet örökít rá, ami erősebb
-      specificitással felülírta a korábbi, finomabb szabályainkat. */
-    .button-container.svelte-1we88o3 {
-      position: relative;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      height: 100%;
-      min-width: 22rem;
-      padding: 0 3.4rem !important;
-      margin-left: auto;
-      background: linear-gradient(135deg, #21d97a 0%, #0fb7c9 100%) !important;
-      border-radius: 999px 0 0 999px;
-      overflow: visible;
-      z-index: 1;
-    }
-
-    .button-container.svelte-1we88o3 a.slamp-account-pill,
-    a.slamp-account-pill {
-      all: unset;
-      position: relative;
-      display: flex !important;
-      align-items: center !important;
-      gap: .9rem !important;
-      cursor: pointer;
-      box-sizing: border-box;
-    }
-    .slamp-account-ico {
-      all: unset;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 3.2rem !important;
-      height: 3.2rem !important;
-      border-radius: 50% !important;
-      background: rgba(255, 255, 255, .22) !important;
-      box-sizing: border-box;
-      flex: none;
-    }
-    .slamp-account-ico svg { width: 1.8rem; height: 1.8rem; color: #fff; display: block; }
-    .slamp-account-text {
-      all: unset;
-      font: 800 1.4rem/1 'Inter', var(--font-primary, sans-serif) !important;
-      text-transform: uppercase !important;
-      letter-spacing: .02em !important;
-      color: #fff !important;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 700px) {
-      .header.svelte-1we88o3 { padding-left: 1.6rem; height: 5.6rem; }
-      .header-left.svelte-1we88o3 { gap: 1.4rem; }
-      .header-item.svelte-1rklruc .title.svelte-1rklruc { display: none; } /* keskeny nézeten csak a hamburger marad, a menü a drawer-ből érhető el */
-      .header-left.svelte-1we88o3 .logo.svelte-1we88o3 { height: 2.4rem; }
-      .button-container.svelte-1we88o3 { min-width: 0; padding: 0 1.6rem !important; }
-      .slamp-account-text { display: none; } /* keskeny nézeten csak az ikon marad */
-    }
-
-    /* =========================================================
-      SLAM — MEGJEGYZÉS: a fenti .header.svelte-1we88o3 blokk egy
-      olyan fejlécet stílusoz, amit a slamcss-all.css SZÁNDÉKOSAN
-      elrejt (`.header.svelte-1ty7olv{display:none!important}`) —
-      helyette a slam-all.js futásidőben épít egy ÚJ, `.slam-nav-*`
-      osztályokkal ellátott sávot, amit a document.body végéhez fűz.
-      TEHÁT A TÉNYLEGESEN LÁTHATÓ FEJLÉC EZ, nem a fenti — innentől
-      EZT alakítjuk a referenciakép szerint. A fenti blokkot érintetlenül
-      hagyjuk (nem árt, csak jelenleg nincs hatása).
-      ========================================================= */
-    :root { --slam-nav-h: 6.6rem; }
-    .slam-nav {
-      background: #0a0a0a !important;
-      height: var(--slam-nav-h) !important;
-      padding: 0 0 0 2.6rem !important;
-      gap: 2.8rem !important;
-      overflow: visible !important;
-    }
-
-    .slam-nav-left { gap: 2rem !important; }
-
-    .slam-nav-burger {
-      width: 3rem !important;
-      height: 2.2rem !important;
-      gap: .1rem !important;
-      justify-content: space-between !important;
-    }
-    .slam-nav-burger span { height: .34rem !important; border-radius: 999px; }
-
-    .slam-nav-links { gap: 2.2rem !important; }
-    .slam-nav-links a {
-      font: 800 1.6rem/1 'Inter', var(--font-primary, sans-serif) !important;
-      letter-spacing: .01em !important;
-    }
-
-    .slam-nav-logo { height: 3.6rem !important; }
-
-    /* a referenciaképen nincs külön kereső-gomb — elrejtjük;
-      ha mégis kelljen, vedd ki ezt a sort */
-    .slam-nav-search { display: none !important; }
-
-    .slam-nav-right { gap: 0 !important; align-self: stretch !important; margin-left: auto !important; }
-
-    /* ---------- FIÓKOM gomb — 1:1 a referenciakép (608 × 174) szerint ----------
-      Minden méret a referencia egységeiben van megadva (--u = a sáv
-      magassága / 174), így a gomb pontosan a sáv teljes magasságát tölti ki,
-      és minden arány (ikon, betű, hézagok, ív) megegyezik a mintával.
-        - színátmenet: balról jobbra, #097b46 -> #11e281
-        - forma: csak a bal-felső sarok íves (ellipszis), a többi szögletes
-        - ikon: fehér, külön fej + váll, lágy sötétzöld drop shadow-val
-        - betű: Inter SemiBold, nagybetű, finom fehér ragyogással */
-    .slam-nav .slam-nav-account {
-      --u: calc(var(--slam-nav-h) / 174);
-      position: relative;
-      box-sizing: border-box;
-      display: flex !important;
-      align-items: center !important;
-      height: 100% !important;
-      margin: 0 !important;
-      padding: 0 calc(var(--u) * 113) 0 calc(var(--u) * 152.5) !important;
-      gap: calc(var(--u) * 57.5) !important;
-      background: linear-gradient(90deg, #097b46 0%, #11e281 100%) !important;
-      border-radius: calc(var(--u) * 165) 0 0 0 / var(--slam-nav-h) 0 0 0 !important;
-      color: #fff !important;
-      text-decoration: none !important;
-      transition: filter .2s ease;
-    }
-    .slam-nav .slam-nav-account:hover { filter: brightness(1.06); background: linear-gradient(90deg, #097b46 0%, #11e281 100%) !important; }
-
-    .slam-nav .slam-nav-account .avatar {
-      flex: none;
-      width: calc(var(--u) * 84) !important;
-      height: calc(var(--u) * 90) !important;
-      padding: 0 !important;
-      border-radius: 0 !important;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 90'%3E%3Crect x='19' y='0' width='46.5' height='50' rx='19' ry='21' fill='white'/%3E%3Cpath d='M10 90C4 90 0 86 0 80C0 71 12 64 26 62.5Q42 70 58 62.5C72 64 84 71 84 80C84 86 80 90 74 90Z' fill='white'/%3E%3C/svg%3E") center / 100% 100% no-repeat !important;
-      filter:
-        drop-shadow(0 0 calc(var(--u) * 3) rgba(255, 255, 255, .35))
-        drop-shadow(0 calc(var(--u) * 7) calc(var(--u) * 7) rgba(0, 55, 28, .5));
-    }
-    .slam-nav .slam-nav-account .avatar svg { display: none !important; }
-
-    .slam-nav .slam-nav-account .label {
-      font: 600 calc(var(--u) * 53.4) / 1 'Inter', var(--font-primary, sans-serif) !important;
-      letter-spacing: -.01em !important;
-      text-transform: uppercase !important;
-      color: #fff !important;
-      white-space: nowrap;
-      text-shadow: 0 0 calc(var(--u) * 14) rgba(255, 255, 255, .35);
-    }
-
-    @media (max-width: 700px) {
-      :root { --slam-nav-h: 5.2rem; }
-      .slam-nav { padding-left: 1.6rem !important; }
-      .slam-nav-links { display: none !important; } /* keskeny nézeten csak a hamburger marad, a menü a drawerből érhető el */
-      .slam-nav-logo { height: 2.2rem !important; }
-      /* keskeny nézeten csak az ikon marad, ugyanazzal a formával */
-      .slam-nav .slam-nav-account { padding: 0 calc(var(--u) * 62) 0 calc(var(--u) * 100) !important; }
-      .slam-nav .slam-nav-account .label { display: none !important; }
-    }
-
-    /* ---------- nincs üres fekete hely a menü előtt és után ----------
-      A menü (#slam-custom-header) a body legelején, a normál folyásban van,
-      ezért a body-nak NEM kell felső paddingot adni (az korábban egy
-      fix pozíciós sávot kompenzált, és 6.6rem üres helyet hagyott felül).
-      A menü és az első tartalom között a hézagot ez a változó adja. */
-    /* ---------- KERESÉS gomb a Fiókom mellett + teljes képernyős kereső ---------- */
-    .slam-nav .slam-nav-searchbtn {
-      display: flex; align-items: center; gap: 1rem;
-      margin-right: 2.6rem; padding: 1.1rem 2.1rem;
-      background: #2b2b2b;
-      border: none;
-      border-radius: 999px;
-      cursor: pointer; color: #fff;
-      font: 500 1.5rem/1 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: 0; text-transform: none; white-space: nowrap;
-      transition: background-color .2s ease, color .2s ease, transform .15s ease;
-    }
-    .slam-nav .slam-nav-searchbtn svg { width: 1.7rem; height: 1.7rem; flex: none; transition: transform .2s ease; }
-    .slam-nav .slam-nav-searchbtn:hover { background: #3a3a3a; }
-    .slam-nav .slam-nav-searchbtn:active { transform: scale(.94); }
-    .slam-nav .slam-nav-searchbtn:active svg { transform: scale(.88); }
-    .slam-nav .slam-nav-searchbtn[aria-expanded="true"] {
-      background: var(--slamp-green, #27dc54);
-      color: #06230f;      
-      padding: 15px 15px 15px 0px;
-
-    }
-    @media (max-width: 700px) {
-      .slam-nav .slam-nav-searchbtn { margin-right: 1.6rem; padding: 1rem; }
-      .slam-nav .slam-nav-searchbtn span { display: none; }
-    }
-
-    /* ---------- KERESŐ overlay — 1:1 a Radio 538 "Zoeken" referencia szerint ----------
-      Minden méret px-ben van (a gyökér font-size 62.5%, ezért a rem itt
-      megtévesztő lenne). Színek: a --so-* változókat átírva az egész
-      oldal témája váltható (pl. sötét háttér: --so-bg:#000; --so-ink:#fff).
-        - felső sáv: fekete, 65px, ← nyíl + pirula alakú (40px) beviteli mező
-        - tartalom: 1250px széles, SNEL NAAR = 4 × 300px-es fotókártya (16px köz),
-          ACTIES = 3 × 16:9 kártya (16px köz, 24px sortáv) */
-    body.slam-so-lock { overflow: hidden !important; }
-    .slam-so {
-      --so-bg: #fff; --so-ink: #111; --so-bar: #000; --so-input: #2b2b2b; --so-visited: #999;
-      position: fixed; inset: 0; z-index: 100000;
-      display: flex; flex-direction: column;
-      background: var(--so-bg); color: var(--so-ink);
-      font: 400 16px/1.4 'Inter', var(--font-primary, sans-serif);
-      opacity: 0; visibility: hidden; pointer-events: none;
-      transform: translateY(-18px) scale(.99);
-      transition: opacity .28s cubic-bezier(.4,0,.2,1),
-                  transform .28s cubic-bezier(.4,0,.2,1),
-                  visibility 0s linear .28s;
-    }
-    .slam-so.is-open {
-      opacity: 1; visibility: visible; pointer-events: auto;
-      transform: translateY(0) scale(1);
-      transition: opacity .28s cubic-bezier(.4,0,.2,1),
-                  transform .28s cubic-bezier(.4,0,.2,1),
-                  visibility 0s;
-    }
-    .slam-so *, .slam-so *::before, .slam-so *::after { box-sizing: border-box; }
-    .slam-so [hidden] { display: none !important; }
-
-    .slam-so-bar { flex: none; height: 65px; background: var(--so-bar); }
-    .slam-so-in {
-      width: calc(100% - 32px); max-width: 1250px; height: 100%; margin: 0 auto;
-      display: flex; align-items: center; gap: 7px;
-    }
-    .slam-so-back {
-      flex: none; width: 42px; height: 40px; padding: 0; margin: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: none; border: 0; color: #fff; cursor: pointer;
-    }
-    .slam-so-back svg { width: 30px; height: 26px; }
-    .slam-so-field {
-      flex: 1; min-width: 0; height: 40px; margin: 0;
-      display: flex; align-items: center; gap: 13px; padding: 0 20px 0 14px;
-      border-radius: 20px; background: var(--so-input); cursor: text;
-    }
-    .slam-so-field svg { flex: none; width: 20px; height: 20px; color: #fff; }
-    .slam-so-field input {
-      flex: 1; min-width: 0; height: 100%; margin: 0; padding: 0;
-      background: transparent; border: 0; outline: 0; box-shadow: none; border-radius: 0;
-      -webkit-appearance: none; appearance: none;
-      color: #fff; font: 500 17px/1 'Inter', var(--font-primary, sans-serif);
-    }
-    .slam-so-field input::placeholder { color: #fff; opacity: .92; }
-    .slam-so-field input::-webkit-search-cancel-button,
-    .slam-so-field input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
-
-    .slam-so-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-    .slam-so-wrap { width: calc(100% - 32px); max-width: 1250px; margin: 0 auto; padding: 32px 0 64px; }
-    .slam-so-sec + .slam-so-sec { margin-top: 40px; }
-    .slam-so-h {
-      margin: 0 0 18px; padding: 0;
-      font: 900 26px/30px 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: -.02em; text-transform: uppercase; color: var(--so-ink);
-    }
-
-    /* SNEL NAAR — fotókártyák */
-    .slam-so-grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .slam-so-dj {
-      position: relative; display: block; aspect-ratio: 1 / 1; overflow: hidden;
-      border-radius: 4px; text-decoration: none; color: #fff;
-      background: #0a2166 url('img/01/alt.png') center / cover;
-      container-type: inline-size;
-    }
-    .slam-so-dj img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-    .slam-so-dj::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(to top, rgba(0, 0, 0, .6) 0%, rgba(0, 0, 0, 0) 50%);
-    }
-    .slam-so-dj span {
-      position: absolute; z-index: 1; left: 24px; right: 24px; bottom: 16px;
-      left: 8cqw; right: 8cqw; bottom: 5.3cqw;
-      font: 900 27px/40px 'Inter', var(--font-primary, sans-serif);
-      font-size: 9cqw; line-height: 13.3cqw;
-      letter-spacing: -.01em; text-transform: uppercase;
-    }
-
-    /* ACTIES — cikk-kártyák */
-    .slam-so-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px 16px; align-items: start; }
-    .slam-so-art { display: block; color: inherit; text-decoration: none; }
-    .slam-so-art-img { display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 6px; background: #e9e9e9; }
-    .slam-so-art-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .slam-so-art-cat {
-      display: block; margin-top: 10px;
-      font: 800 12px/16px 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: .02em; text-transform: uppercase; color: var(--slamp-green, #27dc54);
-    }
-    .slam-so-art-title {
-      display: block; margin-top: 6px;
-      font: 800 16px/22px 'Inter', var(--font-primary, sans-serif);
-      text-transform: uppercase; color: var(--so-ink);
-    }
-    .slam-so-art:visited .slam-so-art-title { color: var(--so-visited); }
-
-    /* ráhúzásra ránagyítós effektus a keresőben (DJ-k + TRENDING képek) */
-    .slam-so-dj img,
-    .slam-so-art-img img {
-      transition: transform .5s cubic-bezier(.2,.7,.2,1);
-      will-change: transform;
-    }
-    @media (hover: hover) {
-      .slam-so-dj:hover img,
-      .slam-so-dj:focus-visible img,
-      .slam-so-art:hover .slam-so-art-img img,
-      .slam-so-art:focus-visible .slam-so-art-img img { transform: scale(1.12); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .slam-so-dj img, .slam-so-art-img img { transition: none; }
-      .slam-so-dj:hover img, .slam-so-art:hover .slam-so-art-img img { transform: none; }
-    }
-
-    .slam-so-empty { margin: 0; padding: 40px 0; font: 800 16px/22px 'Inter', var(--font-primary, sans-serif); text-transform: uppercase; color: var(--so-visited); }
-
-    @media (max-width: 900px) {
-      .slam-so-grid4 { grid-template-columns: repeat(3, 1fr); }
-      .slam-so-grid3 { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px) {
-      .slam-so-bar { height: 56px; }
-      .slam-so-wrap { padding-top: 24px; }
-      .slam-so-h { font-size: 22px; line-height: 26px; }
-      .slam-so-grid4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .slam-so-grid3 { grid-template-columns: 1fr; }
-    }
-
-    :root { --slam-after-nav-gap: 2rem; }
-    body { padding-top: 0 !important; margin-top: 0 !important; }
-    #slam-custom-header { margin: 0 !important; padding: 0 !important; }
-    /* a statikus mentés hibás záró-tagjei miatt a rejtett oldalsáv lejátszójának
-      darabjai (.info, .ad, .playlist-detail) kicsúsztak a .page-content mellé,
-      és üres fekete helyet hagytak a menü alatt — elrejtjük őket */
-    .page-content.svelte-1ty7olv ~ .info,
-    .page-content.svelte-1ty7olv ~ .ad,
-    .page-content.svelte-1ty7olv ~ .playlist-detail { display: none !important; }
-    .hero:empty { display: none !important; margin: 0 !important; }
-    .slam-live-hero { margin-top: var(--slam-after-nav-gap) !important; }
-
-    /* ---------- FIÓKOM overlay — 1:1 a KERESÉS overlay (.slam-so) mintája szerint ----------
-      Ugyanaz a szerkezet (fekete/üveges felső sáv + görgethető body) és ugyanaz a
-      nyitás/zárás animáció, de a body háttere az img/01/player-bg2.png fotó, sötét
-      gradienssel a kontraszt miatt. A kártya és a mezők az oldalon már használt
-      "üveges" (backdrop-blur, fehér 8-16%-os szegély) stílust követik (l. .slam-sl-dot),
-      a CTA gomb pedig a Fiókom navigációs gomb zöld színátmenetét (#097b46 → #11e281). */
-    .slam-ao {
-      position: fixed; inset: 0; z-index: 100000;
-      display: flex; flex-direction: column;
-      background: #05070c url('img/01/player-bg2.png') center / cover no-repeat;
-      color: #fff;
-      font: 400 16px/1.4 'Inter', var(--font-primary, sans-serif);
-      opacity: 0; visibility: hidden; pointer-events: none;
-      overflow: hidden;
-      transform: translateY(-18px) scale(.99);
-      transition: opacity .28s cubic-bezier(.4,0,.2,1),
-                  transform .28s cubic-bezier(.4,0,.2,1),
-                  visibility 0s linear .28s;
-    }
-    .slam-ao.is-open {
-      opacity: 1; visibility: visible; pointer-events: auto;
-      transform: translateY(0) scale(1);
-      transition: opacity .28s cubic-bezier(.4,0,.2,1),
-                  transform .28s cubic-bezier(.4,0,.2,1),
-                  visibility 0s;
-    }
-    .slam-ao *, .slam-ao *::before, .slam-ao *::after { box-sizing: border-box; }
-    .slam-ao [hidden] { display: none !important; }
-
-    .slam-ao-bar {
-      flex: none; height: 65px;
-      background: rgba(0, 0, 0, .55);
-      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
-    }
-    .slam-ao-in {
-      width: calc(100% - 32px); max-width: 1250px; height: 100%; margin: 0 auto;
-      display: flex; align-items: center; gap: 14px;
-    }
-    .slam-ao-back {
-      flex: none; width: 42px; height: 40px; padding: 0; margin: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: none; border: 0; color: #fff; cursor: pointer;
-    }
-    .slam-ao-back svg { width: 30px; height: 26px; }
-    .slam-ao-bar-title {
-      font: 900 17px/1 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: .04em; text-transform: uppercase; color: #fff;
-    }
-
-    .slam-ao-body {
-      flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-      display: flex; align-items: center; justify-content: center;
-      padding: 40px 16px 64px;
-      position: relative;
-    }
-
-    .slam-ao-card {
-      position: relative; z-index: 1;
-      width: 100%; max-width: 420px;
-      /* .slam-full-art kártya (teljes képernyős lejátszó) háttere/kerete 1:1 */
-      background: rgba(16, 20, 44, .82);
-      border: 1px solid rgba(255, 255, 255, .12);
-      border-radius: 22px;
-      padding: 38px 32px 34px;
-      -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
-      box-shadow:
-        0 30px 60px -20px rgba(0, 0, 0, .55),
-        0 25px 46px -18px rgba(0, 55, 28, .5),
-        inset 0 1px 1px rgba(255, 255, 255, .07);
-      opacity: 0; transform: translateY(18px) scale(.98);
-      transition: opacity .38s cubic-bezier(.2,.8,.2,1) .06s, transform .38s cubic-bezier(.2,.8,.2,1) .06s;
-    }
-    .slam-ao.is-open .slam-ao-card { opacity: 1; transform: translateY(0) scale(1); }
-
-    .slam-ao-heading {
-      margin: 0 0 24px;
-      font: 900 26px/1.15 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: -.02em; text-transform: uppercase; color: #fff;
-      text-shadow: 0 2px 14px rgba(0, 0, 0, .5); /* .title.svelte-1n3lwzt (cikk-címek) mintája */
-    }
-    .slam-ao-heading span { color: var(--slamp-green, #27dc54); }
-
-    .slam-ao-tabs {
-      position: relative;
-      display: flex; padding: 4px; margin: 0 0 28px;
-      background: rgba(0, 0, 0, .32); border: 1px solid rgba(255, 255, 255, .07); border-radius: 999px;
-    }
-    .slam-ao-tab-indicator {
-      position: absolute; z-index: 0; top: 4px; left: 4px;
-      width: calc(50% - 4px); height: calc(100% - 8px);
-      border-radius: 999px;
-      background: linear-gradient(90deg, #097b46 0%, #11e281 100%);
-      box-shadow: 0 8px 18px -8px rgba(17, 226, 129, .65);
-      transition: transform .32s cubic-bezier(.2,.8,.2,1);
-    }
-    .slam-ao-tab {
-      position: relative; z-index: 1;
-      flex: 1; padding: 11px 0; border: 0; background: none; cursor: pointer;
-      border-radius: 999px;
-      font: 800 13px/1 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: .03em; text-transform: uppercase; color: rgba(255, 255, 255, .6);
-      transition: color .2s ease;
-    }
-    .slam-ao-tab.is-active { color: #06230f; }
-
-    .slam-ao-forms { position: relative; overflow: hidden; transition: height .32s cubic-bezier(.2,.8,.2,1); }
-    .slam-ao-form {
-      position: absolute; inset: 0; left: 0; top: 0; width: 100%;
-      display: flex; flex-direction: column; gap: 16px;
-      opacity: 0; transform: translateX(14px); pointer-events: none;
-      transition: opacity .26s ease, transform .26s ease;
-    }
-    .slam-ao-form.is-active { position: relative; opacity: 1; transform: translateX(0); pointer-events: auto; }
-    .slam-ao-field { display: flex; flex-direction: column; gap: 7px; }
-    .slam-ao-field span {
-      font: 700 12px/1 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: .04em; text-transform: uppercase; color: rgba(255, 255, 255, .65);
-    }
-    .slam-ao-input-wrap { position: relative; display: flex; align-items: center; }
-    .slam-ao-input-wrap svg {
-      position: absolute; left: 16px; width: 17px; height: 17px;
-      color: rgba(255, 255, 255, .45); pointer-events: none; transition: color .2s ease;
-    }
-    .slam-ao-field input {
-      width: 100%; height: 48px; padding: 0 16px 0 44px; border-radius: 14px;
-      background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .14);
-      color: #fff; font: 500 15px/1 'Inter', var(--font-primary, sans-serif);
-      outline: 0; -webkit-appearance: none; appearance: none;
-      transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-    }
-    .slam-ao-field input::placeholder { color: rgba(255, 255, 255, .34); }
-    .slam-ao-field input:focus {
-      border-color: #27dc54; background: rgba(255, 255, 255, .08);
-      box-shadow: 0 0 0 3px rgba(39, 220, 84, .18);
-    }
-    .slam-ao-field input:focus ~ svg,
-    .slam-ao-input-wrap:focus-within svg { color: #27dc54; }
-
-    .slam-ao-row { display: flex; align-items: center; justify-content: space-between; margin: -2px 0 4px; gap: 12px; }
-    .slam-ao-check {
-      display: flex; align-items: center; gap: 8px;
-      font: 500 13px/1 'Inter', var(--font-primary, sans-serif); color: rgba(255, 255, 255, .75);
-      cursor: pointer; white-space: nowrap;
-    }
-    .slam-ao-check input { width: 16px; height: 16px; accent-color: #27dc54; }
-    .slam-ao-link {
-      font: 600 13px/1 'Inter', var(--font-primary, sans-serif); color: #27dc54;
-      text-decoration: none; white-space: nowrap;
-    }
-    .slam-ao-link:hover { text-decoration: underline; }
-
-    .slam-ao-submit {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      height: 52px; margin-top: 6px; border: 0; border-radius: 999px; cursor: pointer;
-      background: linear-gradient(90deg, #097b46 0%, #11e281 100%);
-      color: #fff; font: 700 15px/1 'Inter', var(--font-primary, sans-serif);
-      letter-spacing: .01em; text-transform: uppercase;
-      box-shadow: 0 14px 28px -12px rgba(17, 226, 129, .55);
-      transition: filter .2s ease, transform .15s ease, box-shadow .2s ease;
-    }
-    .slam-ao-submit svg { width: 16px; height: 16px; transition: transform .2s ease; }
-    .slam-ao-submit:hover { filter: brightness(1.07); box-shadow: 0 18px 34px -12px rgba(17, 226, 129, .7); }
-    .slam-ao-submit:hover svg { transform: translateX(3px); }
-    .slam-ao-submit:active { transform: scale(.98); }
-
-    .slam-ao-switch {
-      margin: 20px 0 0; text-align: center;
-      font: 500 13px/1.4 'Inter', var(--font-primary, sans-serif); color: rgba(255, 255, 255, .6);
-    }
-    .slam-ao-switch button {
-      background: none; border: 0; padding: 0; margin-left: 4px;
-      color: #27dc54; font: 700 13px/1 'Inter', var(--font-primary, sans-serif);
-      cursor: pointer; text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
-      .slam-ao-bar { height: 56px; }
-      .slam-ao-card { padding: 30px 22px 26px; border-radius: 18px; }
-      .slam-ao-heading { font-size: 21px; }
-      .slam-ao-row { flex-wrap: wrap; }
-    }
-    </style>
+    <link rel="stylesheet" href="slam-shared.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&display=swap">
-    <script>
-    /* KERESÉS gomb a Fiókom elé + teljes képernyős kereső (Radio 538 "Zoeken" minta).
-      A menüt a slam-all.js építi, ezért megvárjuk. Az overlay az első megnyitáskor
-      épül fel, és ekkor olvassa be az adatot:
-        - GYORS ELÉRÉS: a schedule-data.js DJ_PHOTOS + SHOWS változóiból (DJ → műsora)
-        - TRENDING: az oldalon lévő .slam-trending-grid cikk-kártyákból */
-    (function () {
-      var ARROW = '<svg viewBox="0 0 30 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M28.5 13H2M12.5 2.5L2 13l10.5 10.5"/></svg>';
-      var LENS  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg>';
-
-      var btn, overlay, input, body, secDj, gridDj, secArt, gridArt, emptyEl, DJS, ARTS;
-
-      function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-        });
-      }
-      /* ékezet- és kisbetű-független összehasonlításhoz */
-      function norm(s) {
-        return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      }
-      /* műsor-slug a musor-reszlet.html?nev=... linkhez */
-      function slug(s) {
-        return norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      }
-
-      function collectDjs() {
-        var out = [];
-        var photos = (typeof DJ_PHOTOS !== 'undefined') ? DJ_PHOTOS : {};
-        var shows  = (typeof SHOWS !== 'undefined') ? SHOWS : {};
-        Object.keys(photos).forEach(function (name) {
-          var photo = photos[name];
-          if (!name || name === '.' || name === 'SLAM' || !photo) return; /* nem DJ / nincs fotó */
-          var names = [], href = '';
-          Object.keys(shows).forEach(function (d) {
-            (shows[d] || []).forEach(function (s) {
-              if (s.dj !== name) return;
-              if (names.indexOf(s.name) < 0) names.push(s.name);
-              if (!href) href = (s.url && s.url !== '.') ? s.url : 'musor-reszlet.html?nev=' + encodeURIComponent(slug(s.name));
-            });
-          });
-          out.push({ name: name, photo: photo, shows: names, href: href || 'musorrend.html' });
-        });
-        return out;
-      }
-
-      function collectArticles() {
-        var out = [];
-        var list = document.querySelectorAll('.slam-trending-grid a.teaser');
-        for (var i = 0; i < list.length; i++) {
-          var a = list[i];
-          var img = a.querySelector('img');
-          var t = a.querySelector('.body .title, h3');
-          var c = a.querySelector('.category-phone, .badge');
-          if (!t) continue;
-          out.push({
-            href: a.getAttribute('href') || '#',
-            img: img ? img.getAttribute('src') : '',
-            cat: c ? c.textContent.trim() : '',
-            title: t.textContent.replace(/\s+/g, ' ').trim()
-          });
-        }
-        return out;
-      }
-
-      function render(q) {
-        q = norm(q).trim();
-        var djs = DJS.filter(function (d) { return !q || norm(d.name + ' ' + d.shows.join(' ')).indexOf(q) > -1; });
-        var arts = ARTS.filter(function (a) { return !q || norm(a.title + ' ' + a.cat).indexOf(q) > -1; });
-
-        gridDj.innerHTML = djs.map(function (d) {
-          return '<a class="slam-so-dj" href="' + esc(d.href) + '"><img src="' + esc(d.photo) + '" alt="" loading="lazy"><span>' + esc(d.name) + '</span></a>';
-        }).join('');
-        gridArt.innerHTML = arts.map(function (a) {
-          return '<a class="slam-so-art" href="' + esc(a.href) + '"><span class="slam-so-art-img">' +
-            (a.img ? '<img src="' + esc(a.img) + '" alt="" loading="lazy">' : '') + '</span>' +
-            (a.cat ? '<span class="slam-so-art-cat">' + esc(a.cat) + '</span>' : '') +
-            '<span class="slam-so-art-title">' + esc(a.title) + '</span></a>';
-        }).join('');
-
-        secDj.hidden = !djs.length;
-        secArt.hidden = !arts.length;
-        emptyEl.hidden = !!(djs.length || arts.length);
-      }
-
-      function ensureOverlay() {
-        if (overlay) return;
-        overlay = document.createElement('div');
-        overlay.className = 'slam-so';
-        overlay.setAttribute('role', 'dialog');
-        overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', 'Keresés');
-        overlay.innerHTML =
-          '<div class="slam-so-bar"><div class="slam-so-in">' +
-            '<button type="button" class="slam-so-back" aria-label="Vissza">' + ARROW + '</button>' +
-            '<label class="slam-so-field">' + LENS +
-              '<input type="search" placeholder="Keresés" aria-label="Keresés" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">' +
-            '</label>' +
-          '</div></div>' +
-          '<div class="slam-so-body"><div class="slam-so-wrap">' +
-            '<section class="slam-so-sec"><h2 class="slam-so-h">MŰSORVEZETŐINK / DJ-INK</h2><div class="slam-so-grid4"></div></section>' +
-            '<section class="slam-so-sec"><h2 class="slam-so-h">TRENDING</h2><div class="slam-so-grid3"></div></section>' +
-            '<p class="slam-so-empty" hidden>Nincs találat</p>' +
-          '</div></div>';
-        document.body.appendChild(overlay);
-
-        input   = overlay.querySelector('input');
-        body    = overlay.querySelector('.slam-so-body');
-        var secs = overlay.querySelectorAll('.slam-so-sec');
-        secDj = secs[0]; secArt = secs[1];
-        gridDj = secDj.querySelector('.slam-so-grid4');
-        gridArt = secArt.querySelector('.slam-so-grid3');
-        emptyEl = overlay.querySelector('.slam-so-empty');
-
-        DJS = collectDjs();
-        ARTS = collectArticles();
-
-        overlay.querySelector('.slam-so-back').addEventListener('click', function () { toggle(false); });
-        input.addEventListener('input', function () { render(input.value); body.scrollTop = 0; });
-        input.addEventListener('keydown', function (e) { if (e.key === 'Enter') input.blur(); });
-        /* ha egy fotó nem töltődik be, marad a kártya háttere */
-        gridDj.addEventListener('error', function (e) { if (e.target && e.target.tagName === 'IMG') e.target.style.display = 'none'; }, true);
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
-      }
-
-      function toggle(open) {
-        if (open) {
-          ensureOverlay();
-          input.value = '';
-          render('');
-          body.scrollTop = 0;
-          overlay.classList.add('is-open');
-          document.body.classList.add('slam-so-lock');
-          btn.setAttribute('aria-expanded', 'true');
-          setTimeout(function () { input.focus(); }, 30);
-        } else if (overlay && overlay.classList.contains('is-open')) {
-          overlay.classList.remove('is-open');
-          document.body.classList.remove('slam-so-lock');
-          btn.setAttribute('aria-expanded', 'false');
-          btn.focus();
-        }
-      }
-
-      function build() {
-        var right = document.querySelector('#slam-custom-header .slam-nav-right');
-        if (!right || right.querySelector('.slam-nav-searchbtn')) return !!right;
-        btn = document.createElement('button');
-        btn.type = 'button'; btn.className = 'slam-nav-searchbtn';
-        btn.setAttribute('aria-label', 'Keresés'); btn.setAttribute('aria-expanded', 'false');
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path></svg><span>Keresés</span>';
-        right.insertBefore(btn, right.firstChild);
-        btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(true); });
-        return true;
-      }
-      function start() {
-        if (build()) return;
-        var mo = new MutationObserver(function () { if (build()) mo.disconnect(); });
-        mo.observe(document.body, { childList: true, subtree: true });
-      }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-    })();
-    </script>
-    <script>
-    /* FIÓKOM gomb → teljes képernyős bejelentkezés/regisztráció overlay,
-      pontosan a KERESÉS overlay (.slam-so) mintájára építve: ugyanaz a
-      nyitás/zárás animáció, bar + görgethető body szerkezet, ESC-cel és
-      a vissza-nyíllal zárható. A Fiókom gombot a custom-header.js építi
-      be (#slam-custom-header .slam-nav-account), ezért — ugyanúgy, mint
-      a keresés gombnál — MutationObserver-rel várjuk meg, amíg megjelenik. */
-    (function () {
-      var ARROW = '<svg viewBox="0 0 30 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M28.5 13H2M12.5 2.5L2 13l10.5 10.5"/></svg>';
-
-      var EMAIL_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 6.5 9 6.2 9-6.2"/></svg>';
-      var LOCK_ICO  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M7.5 10.5V7.8a4.5 4.5 0 0 1 9 0v2.7"/></svg>';
-      var USER_ICO  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>';
-      var GO_ICO    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>';
-
-      var link, overlay, tabs, tabIndicator, forms, formsWrap, switches;
-
-      function setFormsHeight(animate) {
-        var active = overlay.querySelector('.slam-ao-form.is-active');
-        if (!active) return;
-        var h = active.scrollHeight;
-        if (!animate) formsWrap.style.transition = 'none';
-        formsWrap.style.height = h + 'px';
-        if (!animate) {
-          /* force reflow, majd visszakapcsoljuk az átmenetet a következő váltáshoz */
-          void formsWrap.offsetHeight;
-          formsWrap.style.transition = '';
-        }
-      }
-
-      function activate(name, animateHeight) {
-        tabs.forEach(function (t) { t.classList.toggle('is-active', t.dataset.tab === name); });
-        tabIndicator.style.transform = 'translateX(' + (name === 'register' ? '100%' : '0') + ')';
-        forms.forEach(function (f) {
-          var on = f.dataset.form === name;
-          f.classList.toggle('is-active', on);
-          f.setAttribute('aria-hidden', on ? 'false' : 'true');
-        });
-        switches.forEach(function (s) { s.hidden = s.dataset.switch !== name; });
-        setFormsHeight(animateHeight !== false);
-      }
-
-      function ensureOverlay() {
-        if (overlay) return;
-        overlay = document.createElement('div');
-        overlay.className = 'slam-ao';
-        overlay.setAttribute('role', 'dialog');
-        overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', 'Fiókom');
-        overlay.innerHTML =
-          '<div class="slam-ao-bar"><div class="slam-ao-in">' +
-            '<button type="button" class="slam-ao-back" aria-label="Vissza">' + ARROW + '</button>' +
-            '<span class="slam-ao-bar-title">Fiókom</span>' +
-          '</div></div>' +
-          '<div class="slam-ao-body">' +
-            '<div class="slam-ao-card">' +
-              '<h2 class="slam-ao-heading">Üdvözlünk a <span>SLAM</span>-en!</h2>' +
-              '<div class="slam-ao-tabs">' +
-                '<span class="slam-ao-tab-indicator"></span>' +
-                '<button type="button" class="slam-ao-tab is-active" data-tab="login">Bejelentkezés</button>' +
-                '<button type="button" class="slam-ao-tab" data-tab="register">Regisztráció</button>' +
-              '</div>' +
-              '<div class="slam-ao-forms">' +
-                '<form class="slam-ao-form is-active" data-form="login">' +
-                  '<label class="slam-ao-field"><span>E-mail cím</span><span class="slam-ao-input-wrap">' + EMAIL_ICO + '<input type="email" name="email" autocomplete="email" placeholder="nev@example.com" required></span></label>' +
-                  '<label class="slam-ao-field"><span>Jelszó</span><span class="slam-ao-input-wrap">' + LOCK_ICO + '<input type="password" name="password" autocomplete="current-password" placeholder="••••••••" required></span></label>' +
-                  '<div class="slam-ao-row">' +
-                    '<label class="slam-ao-check"><input type="checkbox" name="remember"><span>Emlékezz rám</span></label>' +
-                    '<a href="#" class="slam-ao-link">Elfelejtett jelszó?</a>' +
-                  '</div>' +
-                  '<button type="submit" class="slam-ao-submit"><span>Bejelentkezés</span>' + GO_ICO + '</button>' +
-                '</form>' +
-                '<form class="slam-ao-form" data-form="register" aria-hidden="true">' +
-                  '<label class="slam-ao-field"><span>Teljes név</span><span class="slam-ao-input-wrap">' + USER_ICO + '<input type="text" name="name" autocomplete="name" placeholder="Kovács Anna" required></span></label>' +
-                  '<label class="slam-ao-field"><span>E-mail cím</span><span class="slam-ao-input-wrap">' + EMAIL_ICO + '<input type="email" name="email" autocomplete="email" placeholder="nev@example.com" required></span></label>' +
-                  '<label class="slam-ao-field"><span>Jelszó</span><span class="slam-ao-input-wrap">' + LOCK_ICO + '<input type="password" name="password" autocomplete="new-password" placeholder="••••••••" required></span></label>' +
-                  '<label class="slam-ao-field"><span>Jelszó megerősítése</span><span class="slam-ao-input-wrap">' + LOCK_ICO + '<input type="password" name="password2" autocomplete="new-password" placeholder="••••••••" required></span></label>' +
-                  '<button type="submit" class="slam-ao-submit"><span>Fiók létrehozása</span>' + GO_ICO + '</button>' +
-                '</form>' +
-              '</div>' +
-              '<p class="slam-ao-switch" data-switch="login">Még nincs fiókod?<button type="button" data-goto="register">Regisztrálj</button></p>' +
-              '<p class="slam-ao-switch" data-switch="register" hidden>Már van fiókod?<button type="button" data-goto="login">Jelentkezz be</button></p>' +
-            '</div>' +
-          '</div>';
-        document.body.appendChild(overlay);
-
-        tabs = Array.prototype.slice.call(overlay.querySelectorAll('.slam-ao-tab'));
-        tabIndicator = overlay.querySelector('.slam-ao-tab-indicator');
-        forms = Array.prototype.slice.call(overlay.querySelectorAll('.slam-ao-form'));
-        formsWrap = overlay.querySelector('.slam-ao-forms');
-        switches = Array.prototype.slice.call(overlay.querySelectorAll('.slam-ao-switch'));
-
-        tabs.forEach(function (t) { t.addEventListener('click', function () { activate(t.dataset.tab); }); });
-        overlay.querySelectorAll('[data-goto]').forEach(function (b) {
-          b.addEventListener('click', function () { activate(b.dataset.goto); });
-        });
-        forms.forEach(function (f) { f.addEventListener('submit', function (e) { e.preventDefault(); }); });
-
-        overlay.querySelector('.slam-ao-back').addEventListener('click', function () { toggle(false); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
-        window.addEventListener('resize', function () { if (overlay.classList.contains('is-open')) setFormsHeight(false); });
-
-        activate('login', false);
-      }
-
-      function toggle(open) {
-        if (open) {
-          ensureOverlay();
-          overlay.classList.add('is-open');
-          document.body.classList.add('slam-so-lock');
-          setTimeout(function () {
-            var first = overlay.querySelector('.slam-ao-form:not([hidden]) input');
-            if (first) first.focus();
-          }, 30);
-        } else if (overlay && overlay.classList.contains('is-open')) {
-          overlay.classList.remove('is-open');
-          document.body.classList.remove('slam-so-lock');
-          if (link) link.focus();
-        }
-      }
-
-      /* A gombot esemény-delegálással kapjuk el a document-en, capture
-        fázisban — ez attól függetlenül működik, hogy a Fiókom gombot
-        pontosan melyik szelektor/osztály építi fel, és akkor is, ha a
-        SvelteKit router újra lerendereli az elemet. A capture fázis
-        biztosítja, hogy a mi kezelőnk fusson le előbb, mint a keret
-        saját (nem-capture) navigációs kattintás-figyelője. */
-      document.addEventListener('click', function (e) {
-        if (e.target.closest('.slam-ao')) return; /* a felugró ablakon belüli kattintásokat a saját gombjai kezelik */
-        var el = e.target.closest(
-          '#slam-custom-header .slam-nav-account, .slamp-account-pill, [aria-label="Fiókom"], [aria-label="Fiók"], [aria-label="fiókom"]'
-        );
-        if (!el) {
-          /* utolsó mentsvár: ha a fenti szelektorok egyike sem talál (pl. a
-            custom-header.js más osztálynevet/struktúrát épít), próbáljuk
-            a látható "Fiókom" feliratú gomb/link szövege alapján. */
-          var cand = e.target.closest('a, button');
-          if (cand && cand.textContent.replace(/\s+/g, ' ').trim().toLowerCase() === 'fiókom') el = cand;
-        }
-        if (!el) return;
-        console.log('[SLAM fiókom-overlay] gombra kattintva, overlay nyitása:', el);
-        e.preventDefault();
-        e.stopPropagation();
-        link = el;
-        toggle(true);
-      }, true);
-      console.log('[SLAM fiókom-overlay] script betöltve és figyel a kattintásra');
-    })();
-    </script>
+    <script src="slam-shared.js"></script>
     <script src="_app/immutable/entry/slam-all.js"></script>
   <script src="custom-header.js"></script>
   </head>
@@ -1794,7 +116,7 @@
         <h2 class="slam-sl-title"><a href="artikelen/welovemusic-spotify.html">Hallgasd a legjobb SLAM-es kedvenceket a Spotifyon is!</a></h2>
         <p class="slam-sl-desc">Kövesd a SLAM-es kedvenceket a Spotifyon is, és vidd magaddal a legjobb zenéket bárhová, ahová csak mész.</p>
       </div>
-      <a class="slam-sl-img" href="artikelen/welovemusic-spotify.html" tabindex="-1" aria-hidden="true"><img src="img/welovemusic-spotify-header.png" alt=""></a>
+      <a class="slam-sl-img" href="artikelen/welovemusic-spotify.html" tabindex="-1" aria-hidden="true"><img src="/img/welovemusic-spotify-header.png" alt=""></a>
     </article>
 
     <article class="slam-sl-slide" aria-roledescription="slide">
@@ -1802,7 +124,7 @@
         <h2 class="slam-sl-title"><a href="artikelen/hetifrissmegjelenések-20250822.html">Ezen a héten is hallhatsz friss, ropogós frissességeket!</a></h2>
         <p class="slam-sl-desc">Ismerd meg a hét legfrissebb megjelenéseit! Kapcsold be a SLAM-et, és hallgasd az új zenéket elsőként.</p>
       </div>
-      <a class="slam-sl-img" href="artikelen/hetifrissmegjelenések-20250822.html" tabindex="-1" aria-hidden="true"><img src="img/newmusicupdatexdance-20250822-banner.png" alt=""></a>
+      <a class="slam-sl-img" href="artikelen/hetifrissmegjelenések-20250822.html" tabindex="-1" aria-hidden="true"><img src="/img/newmusicupdatexdance-20250822-banner.png" alt=""></a>
     </article>
 
     <article class="slam-sl-slide" aria-roledescription="slide">
@@ -1810,7 +132,7 @@
         <h2 class="slam-sl-title"><a href="artikelen/hetikedvencek-20250815.html">Lost Frequencies és a The Chainsmokers is alkotott neked egy újabb zenét ezen a héten!</a></h2>
         <p class="slam-sl-desc">Lost Frequencies és a The Chainsmokers is új zenével jelentkezett ezen a héten. Nézd meg, mi került a heti kedvencek közé!</p>
       </div>
-      <a class="slam-sl-img" href="artikelen/hetikedvencek-20250815.html" tabindex="-1" aria-hidden="true"><img src="img/newmusicupdatexdance-20250815-banner.png" alt=""></a>
+      <a class="slam-sl-img" href="artikelen/hetikedvencek-20250815.html" tabindex="-1" aria-hidden="true"><img src="/img/newmusicupdatexdance-20250815-banner.png" alt=""></a>
     </article>
 
     <article class="slam-sl-slide" aria-roledescription="slide">
@@ -1818,7 +140,7 @@
         <h2 class="slam-sl-title"><a href="artikelen/ujabbkedvencek-20250808.html">Mau P és Armin van Buuren újabb slágerekkel jöttek neked!</a></h2>
         <p class="slam-sl-desc">Mau P és Armin van Buuren is friss slágerekkel érkezett. Olvasd el, mi az, ami most a legjobban szól!</p>
       </div>
-      <a class="slam-sl-img" href="artikelen/ujabbkedvencek-20250808.html" tabindex="-1" aria-hidden="true"><img src="img/newmusicupdate-20250808-banner.png" alt=""></a>
+      <a class="slam-sl-img" href="artikelen/ujabbkedvencek-20250808.html" tabindex="-1" aria-hidden="true"><img src="/img/newmusicupdate-20250808-banner.png" alt=""></a>
     </article>
 
     <article class="slam-sl-slide" aria-roledescription="slide">
@@ -1826,7 +148,7 @@
         <h2 class="slam-sl-title"><a href="artikelen/slamsummer101-2025.html">Ez volt a SLAM SUMMER 101!</a></h2>
         <p class="slam-sl-desc">Nézz vissza a SLAM SUMMER 101 legjobb pillanataira!</p>
       </div>
-      <a class="slam-sl-img" href="artikelen/slamsummer101-2025.html" tabindex="-1" aria-hidden="true"><img src="img/summer101.png" alt=""></a>
+      <a class="slam-sl-img" href="artikelen/slamsummer101-2025.html" tabindex="-1" aria-hidden="true"><img src="/img/summer101.png" alt=""></a>
     </article>
 
     <article class="slam-sl-slide" aria-roledescription="slide">
@@ -1834,7 +156,7 @@
         <h2 class="slam-sl-title"><a href="artikelen/nyaronisslam.html">Hallgasd nyáron is a legnagyobb kedvenceket!</a></h2>
         <p class="slam-sl-desc">Nyáron sem áll meg a zene: hallgasd a SLAM-et, és élvezd a legnagyobb kedvenceket!</p>
       </div>
-      <a class="slam-sl-img" href="artikelen/nyaronisslam.html" tabindex="-1" aria-hidden="true"><img src="img/újabbak a webhez/FEJLÉC-SUMMER.png" alt=""></a>
+      <a class="slam-sl-img" href="artikelen/nyaronisslam.html" tabindex="-1" aria-hidden="true"><img src="/img/újabbak a webhez/FEJLÉC-SUMMER.png" alt=""></a>
     </article>
 
     <button type="button" class="slam-sl-arrow slam-sl-prev" aria-label="Előző">
@@ -2123,7 +445,7 @@
         <div class="slam-live-track">
           <span class="slam-live-track-label">Most<br>szól</span>
           <div class="slam-live-track-art" id="live-hero-track-art">
-            <img src="img/01/logos.png" alt="">
+            <img src="/img/01/logos.png" alt="">
           </div>
           <div class="slam-live-track-info">
             <span class="slam-live-track-title" id="live-hero-track-title">Zene címe</span>
@@ -2804,299 +1126,6 @@
     }
   }
 
-  /* ══════════════════════════════════════════════════════════════
-    FOOTER — a PROGRAM szekció (és a többi SLAM elem) nyelvén.
-
-    Ugyanazok a "szavak", mint a PROGRAM résznél:
-      · #0260f0 / #0645a8 kék + --brand-secondary zöld (#27dc54),
-        a zöld feliratokon sötétzöld (#06210f) betűvel, mint az ÉLŐBEN jelvény
-      · címek: font-hackney, uppercase (.slam-prog-title)
-      · pirula-gombok: 'Satoshi' 900 uppercase (.slam-prog-overzicht)
-      · hover: halvány fehér pirula-háttér + 1px emelkedés (ugyanaz,
-        mint a "TELJES MŰSORREND" gombnál)
-      · a fehér "mikro-ragyogás" (0 2px 6px rgba(255,255,255,.35)),
-        ami az időpont-jelvényeken és a play-gombon is van
-      · rugós (cubic-bezier .34,1.56,.64,1) mozgás a kerek gomboknál
-
-    A footer mostantól UGYANABBAN az oszlopban ül, mint a PROGRAM
-    (130rem max, 3.2rem / 2rem oldalsó margó) — a régi 82vw-s
-    "kitörés" balra tolta és megvágta.
-    ══════════════════════════════════════════════════════════════ */
-
-  @media (max-width: 1000px) {
-    .footer.svelte-tk8rio { display: block !important; }
-  }
-
-  /* ── 1) geometria ── */
-  .footer.svelte-tk8rio {
-    position: relative;
-    isolation: isolate;
-    width: auto !important;
-    max-width: 100% !important;
-    left: auto !important;
-    right: auto !important;
-    margin: 6rem 0 0 !important;
-    /* a felső 2px a gradiens-vonalnak; az alsó 9rem a fix mini-lejátszó
-      (és a sáv fölé kilógó DJ-fotó) miatt kell, hogy a copyright-sor
-      ne kerüljön alá. A széles képernyős calc() padding (0_b9ef… css)
-      is ezzel nullázódik, mert a footer már az oszlopon belül van. */
-    padding: 2px 0 9rem !important;
-    background: none !important;
-  }
-  @media (max-width: 700px) {
-    .footer.svelte-tk8rio { margin-top: 4.4rem !important; }
-  }
-
-  /* nincs felső vonal és nincs kék háttér-ragyogás: a footer a fekete
-    oldalháttéren ül. A slamcss-all.css zöld ambient-ragyogása (::before)
-    is el van rejtve, így tényleg tiszta fekete marad. */
-  .footer.svelte-tk8rio::before,
-  .footer.svelte-tk8rio::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  /* ── 2) felső sáv: "NE. MARADJ. LE." + hírlevél ── */
-  .footer .slam-footer-cta {
-    align-items: center;
-    padding: 5.6rem 3.2rem 4.4rem;
-    border-bottom: none;
-  }
-  /* elválasztó: a tartalom szélére igazítva (nem az oszlop szélére),
-    így pont a kártyák széléig ér, mint a PROGRAM fölötte */
-  .footer .slam-footer-cta::after {
-    content: "";
-    position: absolute; left: 3.2rem; right: 3.2rem; bottom: 0;
-    height: 1px;
-    background: rgba(255,255,255,.08);
-  }
-  @media (max-width: 700px) {
-    .footer .slam-footer-cta { padding: 4.4rem 2rem 3.4rem; }
-    .footer .slam-footer-cta::after { left: 2rem; right: 2rem; }
-  }
-  .footer .slam-footer-cta-title {
-    font: 800 clamp(3.2rem, 5vw, 5.2rem)/1.02 var(--font-hackney, var(--font-primary,sans-serif));
-    letter-spacing: .01em;
-  }
-  .footer .slam-footer-cta-title .blue  { color: #0260f0; }
-  .footer .slam-footer-cta-title .green { color: var(--brand-secondary,#27dc54); }
-  .footer .slam-footer-cta-subtitle {
-    font: 600 1.5rem/1.6 var(--font-primary,sans-serif);
-    color: rgba(255,255,255,.7);
-  }
-
-  .footer .slam-footer-newsletter { max-width: 44rem; gap: .8rem; }
-
-  /* a "E-MAIL CÍM" felirat a placeholder mellett felesleges — a képernyő-
-    olvasónak megmarad, vizuálisan eltűnik */
-  .footer .slam-footer-newsletter-label {
-    position: absolute;
-    width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
-    overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  /* mező = ugyanaz a sötétkék pirula, fehér mikro-ragyogással, mint az
-    idősáv-jelvény a kártyákon és a mini-lejátszón */
-  .footer .slam-footer-newsletter-field {
-    flex-wrap: nowrap;
-    gap: .8rem;
-    padding: .6rem .6rem .6rem 2.4rem;
-    background: #0645a8;
-    border: none;
-    border-radius: 100px;
-    box-shadow: 0 2px 6px rgba(255,255,255,.35);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    transition: box-shadow .25s ease, background-color .25s ease;
-  }
-  .footer .slam-footer-newsletter-field:focus-within {
-    background: #0645a8;
-    border: none;
-    box-shadow: 0 0 0 2px var(--brand-secondary,#27dc54), 0 12px 28px -10px rgba(39,220,84,.55);
-  }
-  .footer .slam-footer-newsletter-field input {
-    width: auto;
-    padding: .9rem 0;
-    font: 600 1.5rem/1.3 var(--font-primary,sans-serif);
-    color: #fff;
-  }
-  .footer .slam-footer-newsletter-field input::-moz-placeholder { color: rgba(255,255,255,.62); }
-  .footer .slam-footer-newsletter-field input::placeholder       { color: rgba(255,255,255,.62); }
-
-  /* gomb = az ÉLŐBEN zöld pirula, Satoshi 900 uppercase (mint a "TELJES MŰSORREND") */
-  .footer .slam-footer-newsletter-field button {
-    width: auto;
-    gap: .6rem;
-    padding: 1.2rem 2.2rem;
-    font: 900 1.4rem/1 'Satoshi', var(--font-primary,sans-serif);
-    letter-spacing: .02em;
-    text-transform: uppercase;
-    color: #06210f;
-    background: var(--brand-secondary,#27dc54);
-    box-shadow: 0 1px 3px rgba(0,0,0,.25);
-  }
-  .footer .slam-footer-newsletter-field button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 22px -10px rgba(39,220,84,.7);
-  }
-  .footer .slam-footer-newsletter-field button:active { transform: translateY(0) scale(.97); }
-  .footer .slam-footer-newsletter-field button svg { stroke-width: 2.6; }
-
-  /* a fókuszt a mező körüli zöld gyűrű jelzi — a belső input saját
-    négyszög-körvonala ehhez képest csak zavaró */
-  .footer .slam-footer-newsletter-field input:focus-visible { outline: none; }
-
-  .footer .slam-footer-newsletter-note { padding-left: 2.4rem; }
-
-  @media (max-width: 700px) {
-    .footer .slam-footer-newsletter { max-width: none; }
-    .footer .slam-footer-newsletter-field { padding: .5rem .5rem .5rem 2rem; border-radius: 100px; }
-    .footer .slam-footer-newsletter-field input { width: auto; padding: .8rem 0; }
-    .footer .slam-footer-newsletter-field button { width: auto; padding: 1.1rem 1.6rem; font-size: 1.3rem; }
-    .footer .slam-footer-newsletter-note { padding-left: 2rem; }
-  }
-
-  /* ── 3) fő rész: logó + közösségi gombok + link-oszlopok ── */
-  .footer-main.svelte-tk8rio {
-    padding: 4.4rem 2rem 3.2rem !important;
-    gap: 3.2rem !important;
-  }
-  @media (min-width: 700.02px) {
-    .footer-main.svelte-tk8rio { padding: 4.8rem 3.2rem 3.6rem !important; }
-  }
-
-  .footer-left.svelte-tk8rio { gap: 2.2rem !important; }
-
-  /* "Kövess minket a neten!" + oszlop-fejlécek: font-hackney, uppercase
-    — ugyanaz, mint a PROGRAM cím */
-  .socials-title.svelte-tk8rio,
-  .link-header.svelte-tk8rio {
-    font: 800 1.6rem/1.3 var(--font-hackney, var(--font-primary,sans-serif)) !important;
-    text-transform: uppercase;
-    letter-spacing: .01em;
-    color: #fff !important;
-  }
-  .link-header.svelte-tk8rio { margin-bottom: .8rem; }
-
-  /* közösségi gombok: pontosan a .slam-prog-arrow kék köre (4rem, ugyanaz
-    az árnyék), hoverre zöld + rugós emelkedés */
-  .footer .socials-list.svelte-tk8rio a.button[data-variant="primary"] {
-    width: 4rem !important; height: 4rem !important;
-    background: #0260f0 !important;
-    border: none !important;
-    color: #fff !important;
-    box-shadow: 0 12px 28px -10px rgba(2,96,240,.65);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, background-color .2s ease, color .2s ease !important;
-  }
-  .footer .socials-list.svelte-tk8rio a.button[data-variant="primary"]:hover {
-    background: var(--brand-secondary,#27dc54) !important;
-    color: #06210f !important;
-    box-shadow: 0 12px 28px -10px rgba(39,220,84,.65);
-    transform: translateY(-2px) scale(1.08);
-  }
-  .footer .socials-list.svelte-tk8rio a.button[data-variant="primary"]:active {
-    transform: translateY(0) scale(.94);
-  }
-
-  /* link-oszlopok: a linkek "láthatatlan pirulák" — hoverre pontosan az a
-    halvány fehér háttér + 1px emelés, mint a "TELJES MŰSORREND" gombon.
-    A negatív bal margó miatt a szöveg az oszlop szélén marad. */
-  .footer .links-table.svelte-tk8rio { gap: .2rem; justify-content: flex-start; }
-
-  .footer .link-item.svelte-tk8rio {
-    width: fit-content;
-    margin-left: -1.2rem;
-    padding: .6rem 1.2rem;
-    font: 600 1.4rem/1.4 var(--font-primary,sans-serif) !important;
-    color: rgba(255,255,255,.68) !important;
-    opacity: 1 !important;
-    border-radius: 100px;
-    transition: background-color .25s ease, color .2s ease, transform .2s ease !important;
-  }
-  .footer .link-item.svelte-tk8rio:hover {
-    color: #fff !important;
-    background-color: rgba(255,255,255,.12);
-    text-decoration: none !important;
-    transform: translateY(-1px);
-  }
-  /* a régi animált aláhúzás (slamcss-all.css) helyett ez a pirula-hover */
-  .footer .link-item.svelte-tk8rio::after { display: none; }
-
-  /* három oszlop 700px fölött; telefonon kettő, hogy ne legyen kilométeres */
-  @media (min-width: 700.02px) {
-    .footer-right.svelte-tk8rio { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-  }
-  @media (max-width: 700px) {
-    .footer-right.svelte-tk8rio {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: 2.6rem 1.6rem !important;
-      margin-top: .8rem;
-    }
-  }
-
-  /* ── 4) alsó sor: copyright + jogi linkek ── */
-  .footer-bottom.svelte-tk8rio {
-    margin: 0 !important;
-    padding: 2.4rem 2rem !important;
-    gap: .8rem 2rem;
-  }
-  @media (min-width: 700.02px) {
-    .footer-bottom.svelte-tk8rio { padding: 2.4rem 3.2rem !important; }
-  }
-  /* elválasztó: ugyanaz a kék→zöld irány, mint a felső vonal, csak halkabban */
-  .footer-bottom.svelte-tk8rio::before {
-    left: 2rem; right: 2rem;
-    background: linear-gradient(90deg, transparent, rgba(2,96,240,.5) 25%, rgba(39,220,84,.5) 75%, transparent);
-  }
-  @media (min-width: 700.02px) {
-    .footer-bottom.svelte-tk8rio::before { left: 3.2rem; right: 3.2rem; }
-  }
-  .footer-bottom.svelte-tk8rio p {
-    font: 600 1.3rem/1.5 var(--font-primary,sans-serif);
-    color: rgba(255,255,255,.5);
-    margin: 0;
-  }
-  /* jogi linkek: mindig egy sorban (törik, ha kell), a negatív margó a
-    szöveget az oszlop szélére igazítja */
-  .footer-legal.svelte-tk8rio {
-    flex-direction: row !important;
-    flex-wrap: wrap;
-    gap: .2rem .4rem !important;
-    margin: 0 -1.2rem !important;
-  }
-  .footer .link-legal-item.svelte-tk8rio {
-    padding: .6rem 1.2rem;
-    font: 600 1.3rem/1.4 var(--font-primary,sans-serif) !important;
-    color: rgba(255,255,255,.5) !important;
-    opacity: 1 !important;
-    border-radius: 100px;
-    transition: background-color .25s ease, color .2s ease, transform .2s ease;
-  }
-  .footer .link-legal-item.svelte-tk8rio:hover {
-    color: #fff !important;
-    background-color: rgba(255,255,255,.12);
-    transform: translateY(-1px);
-  }
-
-  /* ── 5) billentyűzet-fókusz + mozgáscsökkentés ── */
-  .footer .link-item.svelte-tk8rio:focus-visible,
-  .footer .socials-list.svelte-tk8rio a.button:focus-visible {
-    outline: 2px solid var(--brand-secondary,#27dc54);
-    outline-offset: 3px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .footer .link-item.svelte-tk8rio,
-    .footer .link-legal-item.svelte-tk8rio,
-    .footer .socials-list.svelte-tk8rio a.button,
-    .footer .slam-footer-newsletter-field button { transition: none !important; }
-    .footer .link-item.svelte-tk8rio:hover,
-    .footer .link-legal-item.svelte-tk8rio:hover,
-    .footer .socials-list.svelte-tk8rio a.button:hover,
-    .footer .slam-footer-newsletter-field button:hover { transform: none; }
-  }
 
   /* ══════════════════════════════════════════════════════════════
     RESZPONZÍV FINOMHANGOLÁS — mobil (≤700px) és tablet (701–900px)
@@ -3690,7 +1719,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="SLAM Hidp XXL Header 1920X1080 V1"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/newmusicupdatexdance-20250822-banner.png"
+                              src="/img/newmusicupdatexdance-20250822-banner.png"
                               loading="lazy"></div>
                           <div class="category-tablet-and-larger svelte-1n3lwzt">
                             <div class="badge svelte-19qe02l">MUSIC </div>
@@ -3708,7 +1737,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="SLAM Hidp XXL Header 1920X1080 V1"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/welovemusic-spotify-header.png"
+                              src="/img/welovemusic-spotify-header.png"
                               loading="lazy"></div>
                           <div class="category-tablet-and-larger svelte-1n3lwzt">
                             <div class="badge svelte-19qe02l">MUSIC </div>
@@ -3726,7 +1755,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="SLAM Hidp XXL Header 1920X1080 V1"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/newmusicupdatexdance-20250815-banner.png"
+                              src="/img/newmusicupdatexdance-20250815-banner.png"
                               loading="lazy"></div>
                           <div class="category-tablet-and-larger svelte-1n3lwzt">
                             <div class="badge svelte-19qe02l">MUSIC </div>
@@ -3744,7 +1773,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="SLAM Hidp XXL Header 1920X1080 V1"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/newmusicupdate-20250808-banner.png"
+                              src="/img/newmusicupdate-20250808-banner.png"
                               loading="lazy"></div>
                           <div class="category-tablet-and-larger svelte-1n3lwzt">
                             <div class="badge svelte-19qe02l">MUSIC </div>
@@ -3763,7 +1792,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="1920X1080 KKD (1)"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/summer101.png"
+                              src="/img/summer101.png"
                               loading="lazy"></div>
                         </figure>
                         <div class="body svelte-1n3lwzt">
@@ -3778,7 +1807,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="SLAM Hidp XXL Header 1920X1080 V1"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/újabbak a webhez/FEJLÉC-SUMMER.png"
+                              src="/img/újabbak a webhez/FEJLÉC-SUMMER.png"
                               loading="lazy"></div>
                         </figure>
                         <div class="body svelte-1n3lwzt">
@@ -3809,7 +1838,7 @@
                           <div class="swiper-slide svelte-ywik3x"><button
                               class="theme-channel svelte-1i8lkzp"><a href="hallgatas.html"><img
                                 class="image svelte-1i8lkzp"
-                                src="img/01/SLAM shows pic.png"
+                                src="/img/01/SLAM shows pic.png"
                                 alt="SLAM 1 1">
                                 <span class="theme-channel-title">SLAM</span>
                               </a></button> </div>
@@ -3837,7 +1866,7 @@
                         <div class="swiper-wrapper">
                           <div class="swiper-slide svelte-ywik3x">
                             <div class="dj-teaser svelte-6faf97"><img class="image svelte-6faf97"
-                                src="img/01/SLAM shows pic.png"
+                                src="/img/01/SLAM shows pic.png"
                                 alt="">
                               <div class="gradient svelte-6faf97"><a
                                   href="djs/slam.html"
@@ -3846,7 +1875,7 @@
                           </div>
                           <!-- <div class="swiper-slide svelte-ywik3x">
                               <div class="dj-teaser svelte-6faf97"><img class="image svelte-6faf97"
-                                  src="img/dzsino-sm.png"
+                                  src="/img/dzsino-sm.png"
                                   alt="">
                                 <div class="gradient svelte-6faf97"><a
                                     href="djs/kalladzsino.html"
@@ -3855,7 +1884,7 @@
                             </div>
                             <div class="swiper-slide svelte-ywik3x">
                               <div class="dj-teaser svelte-6faf97"><img class="image svelte-6faf97"
-                                  src="img/ZSOMBI-sm.png"
+                                  src="/img/ZSOMBI-sm.png"
                                   alt="">
                                 <div class="gradient svelte-6faf97"><a
                                     href="djs/razgazsombi.html"
@@ -3884,7 +1913,7 @@
                               class="umbraco-image svelte-1k6vkv6 stretch"
                               alt="SLAM SUMMER HEADER"
                               sizes="(max-width: 700px) 120px, (max-width: 1000px) 50vw, 370px"
-                              src="img/újabbak a webhez/FEJLÉC-SUMMER.png"
+                              src="/img/újabbak a webhez/FEJLÉC-SUMMER.png"
                               loading="lazy"></div>
                           <div class="category-tablet-and-larger svelte-1n3lwzt">
                             <div class="badge svelte-19qe02l">AKCIÓINK </div>
@@ -3921,7 +1950,7 @@
                               href="shows/middagshow.html">
                               <div class="program-teaser svelte-2ssfne"><img
                                   class="image svelte-2ssfne"
-                                  src="img/01/SLAM shows pic.png"
+                                  src="/img/01/SLAM shows pic.png"
                                   alt="">
                                 <h3 class="title svelte-2ssfne" title="SLAM Afternoon">SLAM Afternoon</h3>
                                 <h4 class="subtitle svelte-2ssfne"></h4>
@@ -3931,7 +1960,7 @@
                               href="shows/earlybirds.html">
                               <div class="program-teaser svelte-2ssfne"><img
                                   class="image svelte-2ssfne"
-                                  src="img/earlybirds-500x500.png"
+                                  src="/img/earlybirds-500x500.png"
                                   alt="">
                                 <h3 class="title svelte-2ssfne" title="Early Birds">Early Birds</h3>
                                 <h4 class="subtitle svelte-2ssfne"></h4>
@@ -3941,7 +1970,7 @@
                               href="shows/slamthrowback.html">
                               <div class="program-teaser svelte-2ssfne"><img
                                   class="image svelte-2ssfne"
-                                  src="img/slamthrowback-500x500.png"
+                                  src="/img/slamthrowback-500x500.png"
                                   alt="">
                                 <h3 class="title svelte-2ssfne" title="SLAM Throwback">
                                   SLAM Throwback</h3>
@@ -3952,7 +1981,7 @@
                               href="shows/welovemusic.html">
                               <div class="program-teaser svelte-2ssfne"><img
                                   class="image svelte-2ssfne"
-                                  src="img/01/SLAM shows pic.png"
+                                  src="/img/01/SLAM shows pic.png"
                                   alt="">
                                 <h3 class="title svelte-2ssfne" title="We. Love. Music">We. Love. Music</h3>
                                 <h4 class="subtitle svelte-2ssfne"></h4>
@@ -3962,7 +1991,7 @@
                               href="shows/weekend.html">
                               <div class="program-teaser svelte-2ssfne"><img
                                   class="image svelte-2ssfne"
-                                  src="img/weekend-500x500.png"
+                                  src="/img/weekend-500x500.png"
                                   alt="">
                                 <h3 class="title svelte-2ssfne" title="Weekend">
                                   Weekend</h3>
@@ -3979,76 +2008,7 @@
                 </div>
               </div>
             </main>
-            <footer class="footer svelte-tk8rio">
-              <div class="footer-main svelte-tk8rio">
-                <div class="footer-left svelte-tk8rio">
-                  <!-- <div style="display: contents; --width:6.5rem;"><img
-                      class="umbraco-image svelte-1k6vkv6" alt="SLAM! Logo RGB Wit"
-                      src="slam/slam-logo.png"
-                      loading="lazy"></div> -->
-                  <div style="display: contents; --width:35rem;"><img
-                      class="umbraco-image svelte-1k6vkv6" alt="SLAM! We. Love. Music." sizes="2000px" src="img/01/logo.png"
-                      loading="lazy" style=""></div>
-                  <div class="socials svelte-tk8rio">
-                    <div class="socials-title svelte-tk8rio" data-svelte-h="svelte-qyha62">Kövess minket a neten!</div>
-                    <div class="socials-list svelte-tk8rio"> <a class="button rounded   svelte-3awqp0"
-                        data-variant="primary" href="https://www.instagram.com/slamwelovemusic/"
-                        target="_blank" type="button">
-                        <div class="social-icon svelte-tk8rio">
-                          <div style="display: contents; --size:2rem;"><svg
-                              style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
-                              viewBox="0 0 17 16" fill="none">
-                              <path
-                                d="M8.71158 2.53448C10.4917 2.53448 10.7025 2.54125 11.4055 2.57333C12.0555 2.60299 12.4085 2.7116 12.6434 2.80287C12.9546 2.92381 13.1767 3.0683 13.4099 3.30157C13.6432 3.53485 13.7877 3.75695 13.9086 4.06811C13.9999 4.30305 14.1085 4.65605 14.1382 5.30601C14.1703 6.00901 14.177 6.21985 14.177 7.99993C14.177 9.78002 14.1703 9.99085 14.1382 10.6938C14.1085 11.3438 13.9999 11.6968 13.9086 11.9318C13.7877 12.2429 13.6432 12.465 13.4099 12.6983C13.1767 12.9316 12.9546 13.0761 12.6434 13.197C12.4085 13.2883 12.0555 13.3969 11.4055 13.4265C10.7026 13.4586 10.4918 13.4654 8.71158 13.4654C6.93138 13.4654 6.72055 13.4586 6.01768 13.4265C5.36769 13.3969 5.01469 13.2883 4.77978 13.197C4.4686 13.0761 4.24649 12.9316 4.01321 12.6983C3.77994 12.465 3.63545 12.2429 3.51454 11.9318C3.42324 11.6968 3.31463 11.3438 3.28497 10.6939C3.2529 9.99085 3.24612 9.78002 3.24612 7.99993C3.24612 6.21985 3.2529 6.00901 3.28497 5.30604C3.31463 4.65605 3.42324 4.30305 3.51454 4.06811C3.63545 3.75695 3.77994 3.53485 4.01321 3.30157C4.24649 3.0683 4.4686 2.92381 4.77978 2.80287C5.01469 2.7116 5.36769 2.60299 6.01766 2.57333C6.72066 2.54125 6.93149 2.53448 8.71158 2.53448ZM8.71158 1.33325C6.901 1.33325 6.674 1.34093 5.96293 1.37337C5.25331 1.40576 4.76872 1.51844 4.34464 1.68326C3.90625 1.85363 3.53447 2.08158 3.16385 2.4522C2.79323 2.82282 2.56527 3.19461 2.3949 3.633C2.23009 4.05707 2.11741 4.54167 2.08501 5.25129C2.05257 5.96233 2.04492 6.18936 2.04492 7.99993C2.04492 9.8105 2.05257 10.0375 2.08501 10.7486C2.11741 11.4582 2.23009 11.9428 2.3949 12.3669C2.56527 12.8052 2.79323 13.177 3.16385 13.5477C3.53447 13.9183 3.90625 14.1462 4.34464 14.3166C4.76872 14.4814 5.25331 14.5941 5.96293 14.6265C6.674 14.6589 6.901 14.6666 8.71158 14.6666C10.5221 14.6666 10.7492 14.6589 11.4602 14.6265C12.1698 14.5941 12.6544 14.4814 13.0785 14.3166C13.5169 14.1462 13.8887 13.9183 14.2593 13.5477C14.6299 13.177 14.8579 12.8053 15.0283 12.3669C15.1931 11.9428 15.3057 11.4582 15.3381 10.7486C15.3706 10.0375 15.3783 9.8105 15.3783 7.99993C15.3783 6.18936 15.3706 5.96233 15.3381 5.25129C15.3057 4.54167 15.1931 4.05707 15.0283 3.633C14.8579 3.19461 14.6299 2.82282 14.2593 2.4522C13.8887 2.08158 13.5169 1.85363 13.0785 1.68326C12.6544 1.51844 12.1698 1.40576 11.4602 1.37337C10.7492 1.34093 10.5221 1.33325 8.71158 1.33325ZM8.71158 4.5765C6.82087 4.5765 5.28814 6.10923 5.28814 7.99993C5.28814 9.89063 6.82087 11.4234 8.71158 11.4234C10.6023 11.4234 12.135 9.89063 12.135 7.99993C12.135 6.10923 10.6023 4.5765 8.71158 4.5765ZM8.71158 10.2222C7.48428 10.2222 6.48934 9.22722 6.48934 7.99993C6.48934 6.77264 7.48428 5.7777 8.71158 5.7777C9.93887 5.7777 10.9338 6.77264 10.9338 7.99993C10.9338 9.22722 9.93887 10.2222 8.71158 10.2222ZM13.0703 4.44124C13.0703 4.88308 12.7121 5.24126 12.2703 5.24126C11.8284 5.24126 11.4703 4.88308 11.4703 4.44124C11.4703 3.99941 11.8284 3.64126 12.2703 3.64126C12.7121 3.64126 13.0703 3.99941 13.0703 4.44124Z"
-                                fill="currentColor"></path>
-                            </svg></div>
-                        </div>
-                      </a> <a class="button rounded   svelte-3awqp0" data-variant="primary"
-                        href="https://www.facebook.com/slamwelovemusic/" target="_blank" type="button">
-                        <div class="social-icon svelte-tk8rio">
-                          <div style="display: contents; --size:2rem;"><svg
-                              style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
-                              viewBox="0 0 24 24" fill="none">
-                              <path
-                                d="M13.4186 22V13.0697H16.2326L16.8081 9.58706H13.4186V7.16169C13.4186 6.16667 13.8023 5.4204 15.3372 5.4204H17V2.24876C16.1047 2.12438 15.0814 2 14.186 2C11.2442 2 9.19767 3.74129 9.19767 6.85075V9.58706H6V13.0697H9.19767V22H13.4186Z"
-                                fill="currentColor"></path>
-                            </svg></div>
-                        </div>
-                      </a> <a class="button rounded   svelte-3awqp0" data-variant="primary"
-                        href="https://www.youtube.com/@slamhu" target="_blank" type="button">
-                        <div class="social-icon svelte-tk8rio">
-                          <div style="display: contents; --size:2rem;"><svg
-                              style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
-                              viewBox="0 0 17 16" fill="none">
-                              <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M14.1032 2.96546C14.7183 3.13011 15.2017 3.61347 15.3663 4.22854C15.6638 5.34225 15.665 7.66729 15.665 7.66729C15.665 7.66729 15.665 9.99234 15.3663 11.1061C15.2017 11.7211 14.7183 12.2045 14.1032 12.3691C12.9895 12.6678 8.52169 12.6678 8.52169 12.6678C8.52169 12.6678 4.05392 12.6678 2.9402 12.3691C2.32514 12.2045 1.84178 11.7211 1.67713 11.1061C1.37842 9.99234 1.37842 7.66729 1.37842 7.66729C1.37842 7.66729 1.37842 5.34225 1.67713 4.22854C1.84178 3.61347 2.32514 3.13011 2.9402 2.96546C4.05392 2.66675 8.52169 2.66675 8.52169 2.66675C8.52169 2.66675 12.9895 2.66675 14.1032 2.96546ZM10.8033 7.66751L7.09169 9.81024V5.52474L10.8033 7.66751Z"
-                                fill="currentColor"></path>
-                            </svg></div>
-                        </div>
-                      </a></div>
-                  </div>
-                </div>
-                <div class="footer-right svelte-tk8rio">
-                  <div class="links-table svelte-tk8rio">
-                    <div class="link-header svelte-tk8rio">SLAM!</div> <a
-                      class="link-item svelte-tk8rio" href="index.html">Kezdőlap</a> <a
-                      class="link-item svelte-tk8rio" href="programmering.html">Műsorrend</a> <a
-                      class="link-item svelte-tk8rio" href="ontdek.html">Blog</a> <a
-                      class="link-item svelte-tk8rio" href="artikelen/slam-events.html">Események</a>
-                  </div>
-                  <div class="links-table svelte-tk8rio">
-                    <div class="link-header svelte-tk8rio">Általános linkek</div> <a
-                      class="link-item svelte-tk8rio" href="hallgatas.html">Hallgatás</a> <a
-                      class="link-item svelte-tk8rio" href="programmas.html">Műsorok</a> <a
-                      class="link-item svelte-tk8rio" href="djs.html">DJ's</a> <a
-                      class="link-item svelte-tk8rio" href="artikelen/contact.html">Kapcsolat</a>
-                  </div>
-                </div>
-              </div>
-              <div class="footer-bottom svelte-tk8rio">
-                <p>© SLAM 2026 - Minden jog fenntartva!</p>
-              </div>
-            </footer>
+            <div id="slam-footer-mount"></div>
           </div>
           
           <div class="tabbar svelte-1ty7olv">
@@ -4225,134 +2185,6 @@
     }
     wireBurger('burgerBtn', 'drawer', 'drawerClose', 'backdrop');
   </script>
-  <script>
-  /* =========================================================
-    SLAM — a mini lejátszó borítójának összekötése a most szóló
-    műsorral.
-
-    Az oldal maga ('updateLiveHero') már kibocsát egy
-    'slam:now-playing' eseményt a mai műsorrend (SHOWS/DJ_PHOTOS)
-    alapján — ebben benne van a most élő műsor fotója is
-    (d.photo), ha van neki. Ezt eddig csak a TELJES képernyős
-    lejátszó használta fel; ez a script ugyanezt köti be az ÚJ
-    (slamp-*) mini-sávba is:
-
-      - ha van fotó a mai műsorhoz (pl. PROTOKOL BY WEEKENDER
-        DJ-fotója) -> az jelenik meg a borító-négyzetben, kitöltve
-      - ha nincs   -> a nagy, a sáv teteje fölé kilógó SLAM-logó
-        (img/01/logos.png, a két pöttyös verzió)
-
-    Az esemény percenként újra lefut, tehát műsorváltáskor a
-    borító is automatikusan frissül/vált.
-    ========================================================= */
-  (function () {
-    var FALLBACK_ART = 'img/01/logos.png';
-    var lastPhoto = null;
-
-    function applyArt(photoUrl) {
-      var artEl = document.querySelector('.slamp-art');
-      if (!artEl) return false;
-
-      var img = artEl.querySelector('img.slamp-art-img');
-      if (!img) {
-        artEl.innerHTML = '';
-        img = document.createElement('img');
-        img.className = 'slamp-art-img';
-        img.alt = '';
-        artEl.appendChild(img);
-      }
-
-      var src = photoUrl || FALLBACK_ART;
-      if (img.getAttribute('src') !== src) img.src = src;
-      artEl.classList.toggle('has-photo', !!photoUrl);
-      artEl.classList.toggle('has-logo', !photoUrl);
-      return true;
-    }
-
-    document.addEventListener('slam:now-playing', function (e) {
-      var d = e.detail || {};
-      lastPhoto = d.photo || null;
-      applyArt(lastPhoto);
-
-      var titleEl = document.querySelector('.slamp-meta-title');
-      var subEl = document.querySelector('.slamp-meta-sub');
-      var statusEl = document.querySelector('.slamp-status-label');
-      if (titleEl) titleEl.textContent = d.name || 'SLAM';
-      if (subEl) subEl.textContent = d.dj || 'Élő adás';
-      if (statusEl) {
-        statusEl.textContent = (d.time && d.end)
-          ? (d.time + ' - ' + d.end)
-          : (d.current ? 'Élő adás' : 'Most szól');
-      }
-    });
-
-    /* a slamp-art elem (és az első 'slam:now-playing' esemény) csak
-      kis késéssel épül fel/fut le -> néhányszor újrapróbáljuk, hogy
-      biztosan legyen kép (valódi fotó VAGY a logó-fallback) akkor is,
-      ha ez a script hamarabb töltődött be, mint a lejátszó DOM-ja */
-    var tries = 0;
-    var iv = setInterval(function () {
-      tries += 1;
-      if (applyArt(lastPhoto) || tries > 30) clearInterval(iv);
-    }, 200);
-  })();
-
-  /* =========================================================
-    SLAM — a hangerő-ikon most már követi a csúszka állását:
-    néma / halk / hangos ikon a slamp-vol-range értéke (és a
-    némítás gomb) alapján, ugyanazon a slamp-vol-icon SVG-n belül.
-    ========================================================= */
-  (function () {
-    var ICONS = {
-      muted: '<path d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
-            '<line x1="22" y1="9" x2="16" y2="15"></line>' +
-            '<line x1="16" y1="9" x2="22" y2="15"></line>',
-      low:   '<path d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
-            '<path d="M16 8a5 5 0 0 1 0 8"></path>',
-      high:  '<path d="M3 9v6h4l5 5V4L7 9H3z"></path>' +
-            '<path d="M16 8a5 5 0 0 1 0 8"></path>' +
-            '<path d="M19.5 5a9 9 0 0 1 0 14"></path>'
-    };
-
-    function wire() {
-      var range = document.querySelector('.slamp-vol-range');
-      var icon = document.querySelector('.slamp-vol-icon');
-      var svg = icon && icon.querySelector('svg');
-      if (!range || !icon || !svg) return false;
-      if (icon.dataset.iconSynced) return true; /* ne kössük be kétszer */
-      icon.dataset.iconSynced = '1';
-
-      function update() {
-        var muted = !!(window.audio && window.audio.muted);
-        var vol = parseFloat(range.value);
-        var key = (muted || vol <= 0) ? 'muted' : (vol <= 0.5 ? 'low' : 'high');
-        if (svg.getAttribute('data-state') !== key) {
-          svg.setAttribute('data-state', key);
-          svg.innerHTML = ICONS[key];
-        }
-      }
-
-      range.addEventListener('input', update);
-      icon.addEventListener('click', function () {
-        /* a meglévő némítás-kapcsoló után frissítjük az ikont */
-        setTimeout(update, 0);
-      });
-      if (window.audio) {
-        window.audio.addEventListener('volumechange', update);
-      }
-      update();
-      return true;
-    }
-
-    if (!wire()) {
-      var t = 0;
-      var iv2 = setInterval(function () {
-        t += 1;
-        if (wire() || t > 40) clearInterval(iv2);
-      }, 200);
-    }
-  })();
-  </script>
 
   <script>
   /* =========================================================
@@ -4495,6 +2327,13 @@
     var ACCESS_KEY = '$2a$10$tHygSCdawfvQ90N6VE3oZuAZmT54JPXd9r0xcS32v5YPc767U12Pm';
     var JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest';
 
+    /* minden bejegyzésnek automatikusan van saját cikkoldala (artikelen/alap.html?id=…),
+      kivéve, ha az admin felületen egyedi/külső linket adtak meg neki */
+    var ARTICLE_PAGE = 'artikelen/alap.html';
+    function linkFor(p) {
+      return (p && p.link) ? p.link : (ARTICLE_PAGE + '?id=' + encodeURIComponent((p && p.id) || ''));
+    }
+
     function esc(s) {
       return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -4514,7 +2353,7 @@
       var cat = String(p.kategoria || '').trim();
       var cim = esc(p.cim || '');
       return (
-        '<a href="' + esc(p.link || '#') + '" class="teaser svelte-1n3lwzt">' +
+        '<a href="' + esc(linkFor(p)) + '" class="teaser svelte-1n3lwzt">' +
           '<figure class="container svelte-1n3lwzt">' +
             '<div class="image svelte-1n3lwzt">' +
               (p.kep
@@ -4539,10 +2378,10 @@
       return (
         '<article class="slam-sl-slide" aria-roledescription="slide">' +
           '<div class="slam-sl-text">' +
-            '<h2 class="slam-sl-title"><a href="' + esc(p.link || '#') + '">' + esc(p.cim || '') + '</a></h2>' +
+            '<h2 class="slam-sl-title"><a href="' + esc(linkFor(p)) + '">' + esc(p.cim || '') + '</a></h2>' +
             (p.leiras ? '<p class="slam-sl-desc">' + esc(p.leiras) + '</p>' : '') +
           '</div>' +
-          '<a class="slam-sl-img" href="' + esc(p.link || '#') + '" tabindex="-1" aria-hidden="true">' +
+          '<a class="slam-sl-img" href="' + esc(linkFor(p)) + '" tabindex="-1" aria-hidden="true">' +
             (p.kep ? '<img src="' + esc(p.kep) + '" alt="">' : '') +
           '</a>' +
         '</article>'

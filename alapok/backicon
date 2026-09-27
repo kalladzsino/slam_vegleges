@@ -1,7 +1,0 @@
-<div class="header svelte-45lxku"><button class="back svelte-45lxku"><a href="javascript:history.back()"><svg
-											style="width: var(--size, 2.4rem); height: var(--size, 2.4rem)"
-											viewBox="0 0 24 24">
-											<path
-												d="M15.71 3L7 11.71L15.71 20.41L17.12 19L9.83 11.71L17.12 4.41L15.71 3Z"
-												fill="currentColor"></path>
-										</svg></a></button> </div>
