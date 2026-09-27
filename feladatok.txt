@@ -7,3 +7,4 @@ Tetszik/Kedvencnek jelöld meg az aktuális számot , és mentsd el a "Kedvencek
 Dalkérés/kiáltás gomb élő adások alatt (átirányítás a Twitch chatbe vagy egy űrlapra).
 
 
+s
